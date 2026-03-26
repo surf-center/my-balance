@@ -8,181 +8,150 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body{
-      margin:0;
-      font-family:Poppins,sans-serif;
-      background:#f5f7fb;
-      color:#111827;
+    body { margin:0; font-family:Poppins,sans-serif; background:#f5f7fb; color:#111827; }
+    .app { max-width:1280px; margin:0 auto; padding:24px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+    .title { font-size:28px; font-weight:700; }
+    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+    .tab-btn, button { border:none; border-radius:12px; padding:10px 14px; font-family:inherit; font-weight:600; cursor:pointer; }
+    .tab-btn.active, .btn-primary { background:#111827; color:#fff; }
+    .btn-secondary { background:#fff; border:1px solid #e5e7eb; }
+    .btn-danger { background:#dc2626; color:#fff; }
+    .card { background:#fff; border-radius:18px; padding:18px; box-shadow:0 10px 25px rgba(0,0,0,.08); margin-bottom:18px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .stat { background:#fff; border-radius:18px; padding:18px; box-shadow:0 10px 25px rgba(0,0,0,.08); }
+    .stat .label { color:#6b7280; font-size:14px; }
+    .stat .value { font-size:28px; font-weight:700; }
+    .hidden { display:none; }
+    input, select, textarea {
+      width:100%; padding:12px 14px; border:1px solid #e5e7eb; border-radius:12px;
+      box-sizing:border-box; font-family:inherit; margin-bottom:12px;
     }
-    .wrap{
-      max-width:1200px;
-      margin:0 auto;
-      padding:24px;
-    }
-    .top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:20px;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .title{
-      font-size:28px;
-      font-weight:700;
-    }
-    .tabs{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:20px;
-    }
-    .tab-btn, button{
-      border:none;
-      border-radius:12px;
-      padding:11px 16px;
-      font-family:inherit;
-      cursor:pointer;
-      font-weight:600;
-    }
-    .tab-btn.active, .primary{
-      background:#111827;
-      color:#fff;
-    }
-    .secondary{
-      background:#fff;
-      border:1px solid #e5e7eb;
-    }
-    .card{
-      background:#fff;
-      border-radius:18px;
-      box-shadow:0 10px 25px rgba(0,0,0,.08);
-      padding:18px;
-      margin-bottom:18px;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:18px;
-    }
-    input, textarea, select{
-      width:100%;
-      padding:12px 14px;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      font-family:inherit;
-      box-sizing:border-box;
-      margin-bottom:12px;
-    }
-    textarea{min-height:140px}
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
-    }
-    th, td{
-      text-align:left;
-      padding:10px;
-      border-bottom:1px solid #e5e7eb;
-      vertical-align:top;
-    }
-    .hidden{display:none}
-    .login{
-      max-width:380px;
-      margin:80px auto;
-    }
-    .msg{
-      font-size:14px;
-      margin-top:8px;
-      color:#166534;
-    }
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr}
+    textarea { min-height:140px; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .login { max-width:420px; margin:80px auto; }
+    @media (max-width: 960px) {
+      .grid, .grid-3 { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
-  <div id="loginView" class="wrap login">
+  <div id="loginView" class="app login">
     <div class="card">
       <div class="title" style="font-size:24px;">Admin login</div>
-      <input type="password" id="loginCode" placeholder="Pincode">
-      <button class="primary" onclick="login()">Inloggen</button>
-      <div id="loginMsg" class="msg"></div>
+      <input id="adminCode" type="password" placeholder="Admin code">
+      <button class="btn-primary" onclick="login()">Inloggen</button>
+      <div id="loginMsg"></div>
     </div>
   </div>
 
-  <div id="appView" class="wrap hidden">
-    <div class="top">
+  <div id="appView" class="app hidden">
+    <div class="topbar">
       <div class="title">Consignatie Admin</div>
-      <button class="secondary" onclick="loadData()">Vernieuwen</button>
+      <button class="btn-secondary" onclick="loadData()">Vernieuwen</button>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('customers', this)">Klanten</button>
+      <button class="tab-btn active" onclick="showTab('dashboard', this)">Dashboard</button>
+      <button class="tab-btn" onclick="showTab('customers', this)">Klanten</button>
       <button class="tab-btn" onclick="showTab('items', this)">Items</button>
       <button class="tab-btn" onclick="showTab('templates', this)">Templates</button>
       <button class="tab-btn" onclick="showTab('maillog', this)">MailLog</button>
+      <button class="tab-btn" onclick="showTab('settings', this)">Instellingen</button>
     </div>
 
-    <div id="customers" class="tab">
+    <section id="dashboard" class="tab">
+      <div class="grid-3">
+        <div class="stat"><div class="label">Klanten</div><div class="value" id="statCustomers">0</div></div>
+        <div class="stat"><div class="label">Items</div><div class="value" id="statItems">0</div></div>
+        <div class="stat"><div class="label">Templates</div><div class="value" id="statTemplates">0</div></div>
+      </div>
+    </section>
+
+    <section id="customers" class="tab hidden">
       <div class="grid">
         <div class="card">
           <h3>Klant opslaan</h3>
           <input id="cNummer" placeholder="Nummer">
           <input id="cEmail" placeholder="Email">
           <input id="cPincode" placeholder="Pincode">
-          <button class="primary" onclick="saveCustomer()">Opslaan</button>
-          <div id="customerMsg" class="msg"></div>
+          <button class="btn-primary" onclick="saveCustomer()">Opslaan</button>
         </div>
         <div class="card">
           <h3>Klanten</h3>
           <div id="customersTable"></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="items" class="tab hidden">
+    <section id="items" class="tab hidden">
       <div class="grid">
         <div class="card">
-          <h3>Nieuw item toevoegen</h3>
+          <h3>Item toevoegen / bewerken</h3>
           <input id="iNummer" placeholder="Klantnummer">
+          <input id="iSlot" placeholder="Slot (1 t/m 11)">
           <input id="iProduct" placeholder="Product">
           <input id="iPrijs" placeholder="Prijs">
           <input id="iKleur" placeholder="Kleur">
           <input id="iLink" placeholder="Link">
-          <button class="primary" onclick="addItem()">Toevoegen in eerste lege slot</button>
-          <div id="itemMsg" class="msg"></div>
+          <div class="actions">
+            <button class="btn-primary" onclick="saveItem()">Opslaan</button>
+            <button class="btn-secondary" onclick="addItemToFirstEmptySlot()">Toevoegen in eerste lege slot</button>
+          </div>
         </div>
+
         <div class="card">
-          <h3>Overzicht items</h3>
-          <div id="itemsTable"></div>
+          <h3>Mail draft maken</h3>
+          <input id="mNummer" placeholder="Klantnummer">
+          <input id="mSlot" placeholder="Slot">
+          <select id="mTemplate"></select>
+          <div class="actions">
+            <button class="btn-secondary" onclick="openAppleMailDraft()">Apple Mail draft</button>
+            <button class="btn-primary" onclick="createGmailDraft()">Gmail draft</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div id="templates" class="tab hidden">
+      <div class="card">
+        <h3>Items overzicht</h3>
+        <div id="itemsTable"></div>
+      </div>
+    </section>
+
+    <section id="templates" class="tab hidden">
       <div class="grid">
         <div class="card">
           <h3>Template opslaan</h3>
           <input id="tKey" placeholder="TemplateKey">
           <input id="tSubject" placeholder="Onderwerp">
           <textarea id="tBody" placeholder="Inhoud"></textarea>
-          <button class="primary" onclick="saveTemplate()">Opslaan</button>
-          <div id="templateMsg" class="msg"></div>
+          <button class="btn-primary" onclick="saveTemplate()">Opslaan</button>
         </div>
         <div class="card">
           <h3>Templates</h3>
           <div id="templatesTable"></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="maillog" class="tab hidden">
+    <section id="maillog" class="tab hidden">
       <div class="card">
-        <h3>Mail log</h3>
+        <h3>MailLog</h3>
         <div id="mailLogTable"></div>
       </div>
-    </div>
+    </section>
+
+    <section id="settings" class="tab hidden">
+      <div class="card">
+        <h3>Instellingen</h3>
+        <input id="sAdminCode" placeholder="Admin code">
+        <input id="sShopName" placeholder="Shop naam">
+        <button class="btn-primary" onclick="saveSettings()">Opslaan</button>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -190,89 +159,154 @@
       customers: [],
       baseRows: [],
       templates: [],
-      mailLog: []
+      mailLog: [],
+      settings: {}
     };
 
     function login() {
-      const code = document.getElementById('loginCode').value;
-      google.script.run.withSuccessHandler(function(ok){
-        if (ok) {
-          document.getElementById('loginView').classList.add('hidden');
-          document.getElementById('appView').classList.remove('hidden');
-          loadData();
-        } else {
-          document.getElementById('loginMsg').textContent = 'Onjuiste pincode';
+      const code = document.getElementById('adminCode').value;
+      google.script.run.withSuccessHandler(function(ok) {
+        if (!ok) {
+          document.getElementById('loginMsg').innerText = 'Onjuiste admin code';
+          return;
         }
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        loadData();
       }).checkAdminLogin(code);
     }
 
     function showTab(id, btn) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       btn.classList.add('active');
     }
 
     function loadData() {
-      google.script.run.withSuccessHandler(function(data){
+      google.script.run.withSuccessHandler(function(data) {
         state = data;
+        renderDashboard();
         renderCustomers();
         renderItems();
         renderTemplates();
         renderMailLog();
+        renderTemplateSelect();
+        fillSettings();
       }).getAllData();
     }
 
+    function renderDashboard() {
+      document.getElementById('statCustomers').innerText = state.baseRows.length;
+      document.getElementById('statTemplates').innerText = state.templates.length;
+
+      let itemCount = 0;
+      state.baseRows.forEach(r => {
+        r.items.forEach(i => { if (i.product) itemCount++; });
+      });
+      document.getElementById('statItems').innerText = itemCount;
+    }
+
     function saveCustomer() {
-      const data = {
+      google.script.run.withSuccessHandler(loadData).saveCustomer({
         Nummer: document.getElementById('cNummer').value,
         Email: document.getElementById('cEmail').value,
         Pincode: document.getElementById('cPincode').value
-      };
-      google.script.run.withSuccessHandler(function(msg){
-        document.getElementById('customerMsg').textContent = msg;
-        loadData();
-      }).saveCustomer(data);
+      });
     }
 
-    function addItem() {
-      const data = {
+    function saveItem() {
+      google.script.run.withSuccessHandler(loadData).updateItem({
+        Nummer: document.getElementById('iNummer').value,
+        slot: document.getElementById('iSlot').value,
+        product: document.getElementById('iProduct').value,
+        prijs: document.getElementById('iPrijs').value,
+        kleur: document.getElementById('iKleur').value,
+        link: document.getElementById('iLink').value
+      });
+    }
+
+    function addItemToFirstEmptySlot() {
+      google.script.run.withSuccessHandler(loadData).addItemToFirstEmptySlot({
         Nummer: document.getElementById('iNummer').value,
         product: document.getElementById('iProduct').value,
         prijs: document.getElementById('iPrijs').value,
         kleur: document.getElementById('iKleur').value,
         link: document.getElementById('iLink').value
-      };
-      google.script.run.withSuccessHandler(function(msg){
-        document.getElementById('itemMsg').textContent = msg;
-        loadData();
-      }).addItemToFirstEmptySlot(data);
+      });
     }
 
     function deleteItem(nummer, slot) {
-      google.script.run.withSuccessHandler(function(msg){
-        document.getElementById('itemMsg').textContent = msg;
-        loadData();
-      }).deleteItem({ Nummer: nummer, slot: slot });
+      google.script.run.withSuccessHandler(loadData).deleteItem({ Nummer: nummer, slot: slot });
     }
 
-    function markSold(nummer, slot) {
-      google.script.run.withSuccessHandler(function(msg){
-        document.getElementById('itemMsg').textContent = msg;
-        loadData();
-      }).markItemAsSold({ Nummer: nummer, slot: slot });
+    function soldItem(nummer, slot) {
+      google.script.run.withSuccessHandler(loadData).markItemAsSold({ Nummer: nummer, slot: slot });
+    }
+
+    function editItem(nummer, slot, product, prijs, kleur, link) {
+      document.getElementById('iNummer').value = nummer;
+      document.getElementById('iSlot').value = slot;
+      document.getElementById('iProduct').value = product;
+      document.getElementById('iPrijs').value = prijs;
+      document.getElementById('iKleur').value = kleur;
+      document.getElementById('iLink').value = link;
+
+      document.getElementById('mNummer').value = nummer;
+      document.getElementById('mSlot').value = slot;
     }
 
     function saveTemplate() {
-      const data = {
+      google.script.run.withSuccessHandler(loadData).saveTemplate({
         TemplateKey: document.getElementById('tKey').value,
         Onderwerp: document.getElementById('tSubject').value,
         Inhoud: document.getElementById('tBody').value
-      };
-      google.script.run.withSuccessHandler(function(msg){
-        document.getElementById('templateMsg').textContent = msg;
+      });
+    }
+
+    function renderTemplateSelect() {
+      const select = document.getElementById('mTemplate');
+      select.innerHTML = '';
+      state.templates.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t.TemplateKey;
+        option.textContent = t.TemplateKey;
+        select.appendChild(option);
+      });
+    }
+
+    function openAppleMailDraft() {
+      google.script.run.withSuccessHandler(function(res) {
+        window.open(res.url, '_blank');
         loadData();
-      }).saveTemplate(data);
+      }).getAppleMailDraftUrl({
+        Nummer: document.getElementById('mNummer').value,
+        slot: document.getElementById('mSlot').value,
+        TemplateKey: document.getElementById('mTemplate').value
+      });
+    }
+
+    function createGmailDraft() {
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        loadData();
+      }).createGmailDraft({
+        Nummer: document.getElementById('mNummer').value,
+        slot: document.getElementById('mSlot').value,
+        TemplateKey: document.getElementById('mTemplate').value
+      });
+    }
+
+    function saveSettings() {
+      google.script.run.withSuccessHandler(loadData).saveSettings({
+        admin_code: document.getElementById('sAdminCode').value,
+        shop_name: document.getElementById('sShopName').value
+      });
+    }
+
+    function fillSettings() {
+      document.getElementById('sAdminCode').value = state.settings.admin_code || '';
+      document.getElementById('sShopName').value = state.settings.shop_name || '';
     }
 
     function renderCustomers() {
@@ -296,8 +330,11 @@
               <td>${item.product}</td>
               <td>€${item.prijs || ''}</td>
               <td>
-                <button class="secondary" onclick="markSold('${r.Nummer}', ${item.slot})">Verkocht</button>
-                <button class="secondary" onclick="deleteItem('${r.Nummer}', ${item.slot})">Verwijder</button>
+                <div class="actions">
+                  <button class="btn-secondary" onclick="editItem('${String(r.Nummer).replace(/'/g, "\\'")}', '${item.slot}', '${String(item.product).replace(/'/g, "\\'")}', '${String(item.prijs).replace(/'/g, "\\'")}', '${String(item.kleur).replace(/'/g, "\\'")}', '${String(item.link).replace(/'/g, "\\'")}')">Bewerken</button>
+                  <button class="btn-secondary" onclick="soldItem('${r.Nummer}', ${item.slot})">Verkocht</button>
+                  <button class="btn-danger" onclick="deleteItem('${r.Nummer}', ${item.slot})">Verwijder</button>
+                </div>
               </td>
             </tr>`;
           }
@@ -317,7 +354,7 @@
     }
 
     function renderMailLog() {
-      let html = '<table><thead><tr><th>Datum</th><th>Nummer</th><th>Email</th><th>Template</th><th>Status</th></tr></thead><tbody>';
+      let html = '<table><thead><tr><th>Datum</th><th>Nummer</th><th>Email</th><th>Template</th><th>Status</th><th>Type</th></tr></thead><tbody>';
       state.mailLog.forEach(m => {
         html += `<tr>
           <td>${m.Datum || ''}</td>
@@ -325,6 +362,7 @@
           <td>${m.Email || ''}</td>
           <td>${m.TemplateKey || ''}</td>
           <td>${m.Status || ''}</td>
+          <td>${m.Type || ''}</td>
         </tr>`;
       });
       html += '</tbody></table>';
