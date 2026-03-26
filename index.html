@@ -1,220 +1,335 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <!-- Favicon -->
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My balance</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consignatie Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      margin: 0;
-      background-color: #f8f9fa;
-      color: black;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
+    body{
+      margin:0;
+      font-family:Poppins,sans-serif;
+      background:#f5f7fb;
+      color:#111827;
     }
-    /* Inlogscherm als zwarte klantenkaart */
-    .card {
-      width: 320px;
-      height: 200px;
-      background-color: #000;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      margin-bottom: 20px;
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:24px;
     }
-    .card img {
-      width: 150px; /* Vergroot het logo */
-      height: auto;
-      margin-bottom: 20px;
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:20px;
+      gap:12px;
+      flex-wrap:wrap;
     }
-    .card input {
-      background: transparent;
-      border: none; /* Verwijdert de streep */
-      color: #fff;
-      font-size: 16px; /* Kleinere tekst voor het kaartnummer */
-      font-weight: bold;
-      text-align: center;
-      outline: none;
-      width: 80%;
+    .title{
+      font-size:28px;
+      font-weight:700;
     }
-    .card input::placeholder {
-      color: rgba(255, 255, 255, 0.7);
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
     }
-    /* Styling voor de saldo boodschap container */
-    .container {
-      width: 100%;
-      max-width: 320px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .tab-btn, button{
+      border:none;
+      border-radius:12px;
+      padding:11px 16px;
+      font-family:inherit;
+      cursor:pointer;
+      font-weight:600;
     }
-    .saldo-text {
-      font-size: 20px;
-      margin: 10px 0;
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
+    .tab-btn.active, .primary{
+      background:#111827;
+      color:#fff;
     }
-    .naam, .bedrag {
-      font-weight: 700;
-      font-size: 24px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .secondary{
+      background:#fff;
+      border:1px solid #e5e7eb;
     }
-    .product-container {
-      margin-top: 15px;
-      width: 100%;
+    .card{
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 10px 25px rgba(0,0,0,.08);
+      padding:18px;
+      margin-bottom:18px;
     }
-    .item {
-      font-weight: 400;
-      font-size: 16px;
-      color: black;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid #ccc;
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
     }
-    /* Geef de productnaam meer ruimte en laat deze over meerdere regels afbreken indien nodig */
-    .item-name {
-      flex: 3;
-      text-align: left;
-      white-space: normal;
-      word-break: break-word;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    input, textarea, select{
+      width:100%;
+      padding:12px 14px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      font-family:inherit;
+      box-sizing:border-box;
+      margin-bottom:12px;
     }
-    /* Zorg dat er voldoende witruimte tussen de productnaam en de prijs is */
-    .item-price {
-      flex: 1;
-      text-align: right;
-      white-space: nowrap;
+    textarea{min-height:140px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
     }
-    .item-color-right {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      display: inline-block;
+    th, td{
+      text-align:left;
+      padding:10px;
+      border-bottom:1px solid #e5e7eb;
+      vertical-align:top;
     }
-    .link-icon {
-      width: 12px;
-      height: 12px;
-      display: inline-block;
-      margin-left: 5px;
+    .hidden{display:none}
+    .login{
+      max-width:380px;
+      margin:80px auto;
     }
-    /* Op mobiele schermen: verklein de tekst iets zodat 10 producten goed zichtbaar blijven */
-    @media (max-width: 400px) {
-      .item {
-        font-size: 14px;
-      }
-      .saldo-text {
-        font-size: 18px;
-      }
-      .naam, .bedrag {
-        font-size: 20px;
-      }
+    .msg{
+      font-size:14px;
+      margin-top:8px;
+      color:#166534;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
-  <!-- Inlogscherm als zwarte klantenkaart -->
-  <div id="inputScreen" class="card">
-    <img src="logo.png" alt="Logo">
-    <input type="text" id="klantnummer" placeholder="Kaartnummer" oninput="checkInputLength()">
+  <div id="loginView" class="wrap login">
+    <div class="card">
+      <div class="title" style="font-size:24px;">Admin login</div>
+      <input type="password" id="loginCode" placeholder="Pincode">
+      <button class="primary" onclick="login()">Inloggen</button>
+      <div id="loginMsg" class="msg"></div>
+    </div>
   </div>
-  
-  <!-- Container voor het tonen van de saldo boodschap -->
-  <div id="saldoMessage" class="container" style="display: none;">
-    <p class="saldo-text"><span class="naam"></span> <span class="bedrag"></span></p>
-    <div class="product-container" id="productContainer"></div>
+
+  <div id="appView" class="wrap hidden">
+    <div class="top">
+      <div class="title">Consignatie Admin</div>
+      <button class="secondary" onclick="loadData()">Vernieuwen</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('customers', this)">Klanten</button>
+      <button class="tab-btn" onclick="showTab('items', this)">Items</button>
+      <button class="tab-btn" onclick="showTab('templates', this)">Templates</button>
+      <button class="tab-btn" onclick="showTab('maillog', this)">MailLog</button>
+    </div>
+
+    <div id="customers" class="tab">
+      <div class="grid">
+        <div class="card">
+          <h3>Klant opslaan</h3>
+          <input id="cNummer" placeholder="Nummer">
+          <input id="cEmail" placeholder="Email">
+          <input id="cPincode" placeholder="Pincode">
+          <button class="primary" onclick="saveCustomer()">Opslaan</button>
+          <div id="customerMsg" class="msg"></div>
+        </div>
+        <div class="card">
+          <h3>Klanten</h3>
+          <div id="customersTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="items" class="tab hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Nieuw item toevoegen</h3>
+          <input id="iNummer" placeholder="Klantnummer">
+          <input id="iProduct" placeholder="Product">
+          <input id="iPrijs" placeholder="Prijs">
+          <input id="iKleur" placeholder="Kleur">
+          <input id="iLink" placeholder="Link">
+          <button class="primary" onclick="addItem()">Toevoegen in eerste lege slot</button>
+          <div id="itemMsg" class="msg"></div>
+        </div>
+        <div class="card">
+          <h3>Overzicht items</h3>
+          <div id="itemsTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="templates" class="tab hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Template opslaan</h3>
+          <input id="tKey" placeholder="TemplateKey">
+          <input id="tSubject" placeholder="Onderwerp">
+          <textarea id="tBody" placeholder="Inhoud"></textarea>
+          <button class="primary" onclick="saveTemplate()">Opslaan</button>
+          <div id="templateMsg" class="msg"></div>
+        </div>
+        <div class="card">
+          <h3>Templates</h3>
+          <div id="templatesTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="maillog" class="tab hidden">
+      <div class="card">
+        <h3>Mail log</h3>
+        <div id="mailLogTable"></div>
+      </div>
+    </div>
   </div>
-  
+
   <script>
-    let saldoData = {};
-    
-    async function fetchSaldoData() {
-      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRzczBGpxOcZcQHLLsnKP6SnkG3Np7fuew33Jy_4JyYKoyqkctuLGzCRechKWfQn94mhllfN7wPz7n/pub?output=csv";
-      const response = await fetch(url);
-      const csvText = await response.text();
-      const rows = csvText.split("\n").map(row => row.split(","));
-      
-      for (let i = 1; i < rows.length; i++) {
-        let [klantnummer, naam, saldo, ...items] = rows[i];
-        saldoData[klantnummer.trim()] = {
-          naam: naam.trim(),
-          saldo: saldo.trim(),
-          items: []
-        };
-        
-        for (let j = 0; j < items.length; j += 4) {
-          let product = items[j] ? items[j].trim() : "";
-          let price = items[j + 1] && items[j + 1].trim() !== "" ? `€${items[j + 1].trim()}` : "";
-          let color = items[j + 2] && items[j + 2].trim() !== "" ? items[j + 2].trim() : "transparent";
-          let link = items[j + 3] ? items[j + 3].trim() : "";
-          saldoData[klantnummer.trim()].items.push({ product, price: price.includes("NaN") ? "" : price, color, link });
+    let state = {
+      customers: [],
+      baseRows: [],
+      templates: [],
+      mailLog: []
+    };
+
+    function login() {
+      const code = document.getElementById('loginCode').value;
+      google.script.run.withSuccessHandler(function(ok){
+        if (ok) {
+          document.getElementById('loginView').classList.add('hidden');
+          document.getElementById('appView').classList.remove('hidden');
+          loadData();
+        } else {
+          document.getElementById('loginMsg').textContent = 'Onjuiste pincode';
         }
-      }
+      }).checkAdminLogin(code);
     }
-    
-    function checkInputLength() {
-      let inputField = document.getElementById('klantnummer');
-      if (inputField.value.length >= 5) {
-        toonSaldo();
-      }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
     }
-    
-    function toonSaldo() {
-      let klantnummer = document.getElementById("klantnummer").value.trim().replace(/\D/g, "");
-      let klant = saldoData[klantnummer];
-      
-      if (klant) {
-        document.querySelector(".naam").textContent = klant.naam;
-        document.querySelector(".bedrag").innerHTML = klant.saldo && !isNaN(klant.saldo) ? `€${Math.round(parseFloat(klant.saldo))}` : "";
-        
-        let productContainer = document.getElementById("productContainer");
-        productContainer.innerHTML = "";
-        klant.items.slice(0, 10).forEach((item) => {
+
+    function loadData() {
+      google.script.run.withSuccessHandler(function(data){
+        state = data;
+        renderCustomers();
+        renderItems();
+        renderTemplates();
+        renderMailLog();
+      }).getAllData();
+    }
+
+    function saveCustomer() {
+      const data = {
+        Nummer: document.getElementById('cNummer').value,
+        Email: document.getElementById('cEmail').value,
+        Pincode: document.getElementById('cPincode').value
+      };
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('customerMsg').textContent = msg;
+        loadData();
+      }).saveCustomer(data);
+    }
+
+    function addItem() {
+      const data = {
+        Nummer: document.getElementById('iNummer').value,
+        product: document.getElementById('iProduct').value,
+        prijs: document.getElementById('iPrijs').value,
+        kleur: document.getElementById('iKleur').value,
+        link: document.getElementById('iLink').value
+      };
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('itemMsg').textContent = msg;
+        loadData();
+      }).addItemToFirstEmptySlot(data);
+    }
+
+    function deleteItem(nummer, slot) {
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('itemMsg').textContent = msg;
+        loadData();
+      }).deleteItem({ Nummer: nummer, slot: slot });
+    }
+
+    function markSold(nummer, slot) {
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('itemMsg').textContent = msg;
+        loadData();
+      }).markItemAsSold({ Nummer: nummer, slot: slot });
+    }
+
+    function saveTemplate() {
+      const data = {
+        TemplateKey: document.getElementById('tKey').value,
+        Onderwerp: document.getElementById('tSubject').value,
+        Inhoud: document.getElementById('tBody').value
+      };
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('templateMsg').textContent = msg;
+        loadData();
+      }).saveTemplate(data);
+    }
+
+    function renderCustomers() {
+      let html = '<table><thead><tr><th>Nummer</th><th>Email</th><th>Pincode</th></tr></thead><tbody>';
+      state.customers.forEach(c => {
+        html += `<tr><td>${c.Nummer || ''}</td><td>${c.Email || ''}</td><td>${c.Pincode || ''}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('customersTable').innerHTML = html;
+    }
+
+    function renderItems() {
+      let html = '<table><thead><tr><th>Nummer</th><th>Naam</th><th>Slot</th><th>Product</th><th>Prijs</th><th>Acties</th></tr></thead><tbody>';
+      state.baseRows.forEach(r => {
+        r.items.forEach(item => {
           if (item.product) {
-            let productName = item.link ? `<a href='${item.link}' target='_blank' style='color: inherit; text-decoration: none;'>${item.product}</a>` : item.product;
-            let linkIcon = item.link ? `<a href='${item.link}' target='_blank'><img src='https://cdn-icons-png.flaticon.com/512/25/25284.png' alt='🔗' class='link-icon'></a>` : "";
-            let itemElement = document.createElement("div");
-            itemElement.classList.add("item");
-            itemElement.innerHTML = `<span class='item-name'>${productName} ${linkIcon}</span><span class='item-price'>${item.price}</span><span class='item-color-right' style='background:${item.color};'></span>`;
-            productContainer.appendChild(itemElement);
+            html += `<tr>
+              <td>${r.Nummer}</td>
+              <td>${r.Naam}</td>
+              <td>${item.slot}</td>
+              <td>${item.product}</td>
+              <td>€${item.prijs || ''}</td>
+              <td>
+                <button class="secondary" onclick="markSold('${r.Nummer}', ${item.slot})">Verkocht</button>
+                <button class="secondary" onclick="deleteItem('${r.Nummer}', ${item.slot})">Verwijder</button>
+              </td>
+            </tr>`;
           }
         });
-        
-        // Verberg het inlogscherm en toon de saldo boodschap
-        document.getElementById("inputScreen").style.display = "none";
-        document.getElementById("saldoMessage").style.display = "block";
-      } else {
-        alert("Klantnummer niet gevonden. Probeer opnieuw.");
-      }
+      });
+      html += '</tbody></table>';
+      document.getElementById('itemsTable').innerHTML = html;
     }
-    
-    fetchSaldoData();
+
+    function renderTemplates() {
+      let html = '<table><thead><tr><th>Key</th><th>Onderwerp</th></tr></thead><tbody>';
+      state.templates.forEach(t => {
+        html += `<tr><td>${t.TemplateKey || ''}</td><td>${t.Onderwerp || ''}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('templatesTable').innerHTML = html;
+    }
+
+    function renderMailLog() {
+      let html = '<table><thead><tr><th>Datum</th><th>Nummer</th><th>Email</th><th>Template</th><th>Status</th></tr></thead><tbody>';
+      state.mailLog.forEach(m => {
+        html += `<tr>
+          <td>${m.Datum || ''}</td>
+          <td>${m.Nummer || ''}</td>
+          <td>${m.Email || ''}</td>
+          <td>${m.TemplateKey || ''}</td>
+          <td>${m.Status || ''}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('mailLogTable').innerHTML = html;
+    }
   </script>
 </body>
 </html>
