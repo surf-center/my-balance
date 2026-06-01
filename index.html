@@ -1,1216 +1,2529 @@
 <!DOCTYPE html>
+
 <html lang="nl">
+
 <head>
+
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>My Balance</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
+
     body {
+
       font-family: 'Poppins', sans-serif;
+
       background-color: #f3f4f6;
+
     }
+
+
 
     #loginCode {
+
       background-color: transparent !important;
+
       text-align: center;
+
     }
+
+
 
     #loginCode:focus {
+
       box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.45);
+
     }
+
+
 
     .spinner {
+
       border: 4px solid rgba(255, 255, 255, 0.1);
+
       border-left-color: #ffffff;
+
       border-radius: 50%;
+
       width: 20px;
+
       height: 20px;
+
       animation: spin 1s linear infinite;
+
     }
+
+
 
     @keyframes spin {
+
       to { transform: rotate(360deg); }
+
     }
+
+
 
     .front-card {
+
       min-height: 300px;
+
       display: flex;
+
       flex-direction: column;
+
       justify-content: space-between;
+
     }
+
+
 
     .status-dot {
+
       width: 10px;
+
       height: 10px;
+
       min-width: 10px;
+
       border-radius: 9999px;
+
       display: inline-block;
+
       margin-top: 4px;
+
     }
+
+
 
     .status-green {
+
       background-color: #22c55e;
+
     }
+
+
 
     .status-black {
+
       background-color: #111827;
+
     }
+
+
 
     .article-number {
+
       font-size: 11px;
+
       line-height: 1.2;
+
       color: #9ca3af;
+
       margin-top: 4px;
+
       font-weight: 500;
+
     }
+
+
 
     .modal-backdrop {
+
       background: rgba(0, 0, 0, 0.5);
+
     }
+
+
 
     .hidden-force {
+
       display: none !important;
+
     }
+
+
 
     textarea {
+
       resize: vertical;
+
     }
+
+
 
     .placeholder-chip {
+
       display: inline-flex;
+
       align-items: center;
+
       justify-content: center;
+
       border: 1px solid #d1d5db;
+
       background: white;
+
       color: #111827;
+
       font-size: 12px;
+
       font-weight: 700;
+
       border-radius: 9999px;
+
       padding: 8px 12px;
+
       cursor: pointer;
+
       transition: 0.2s ease;
+
     }
+
+
 
     .placeholder-chip:hover {
+
       background: #ecfeff;
+
       border-color: #06b6d4;
+
       color: #0f766e;
+
     }
+
+
 
     .switch {
+
       position: relative;
+
       display: inline-block;
+
       width: 56px;
+
       height: 30px;
+
     }
+
+
 
     .switch input {
+
       opacity: 0;
+
       width: 0;
+
       height: 0;
+
     }
+
+
 
     .slider {
+
       position: absolute;
+
       inset: 0;
+
       cursor: pointer;
+
       background-color: #111827;
+
       transition: .2s;
+
       border-radius: 9999px;
+
     }
+
+
 
     .slider:before {
+
       position: absolute;
+
       content: "";
+
       height: 22px;
+
       width: 22px;
+
       left: 4px;
+
       top: 4px;
+
       background-color: white;
+
       transition: .2s;
+
       border-radius: 50%;
+
     }
+
+
 
     .switch input:checked + .slider {
+
       background-color: #22c55e;
+
     }
+
+
 
     .switch input:checked + .slider:before {
+
       transform: translateX(26px);
+
     }
+
   </style>
+
 </head>
+
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
+
   <header class="text-center mb-8">
+
     <h1 class="text-3xl font-extrabold text-gray-800">My Balance</h1>
+
     <p class="text-gray-500 mt-1">Check your consignment status</p>
+
   </header>
 
+
+
   <div id="errorMessage" class="hidden w-full max-w-md mx-auto p-3 mb-4 text-sm text-red-800 rounded-lg bg-red-100 text-left" role="alert">
+
     <span class="font-medium">Niet gevonden:</span> Controleer je login.
+
   </div>
+
+
 
   <div id="inputScreen" class="front-card w-full max-w-md mx-auto p-6 bg-black rounded-xl shadow-2xl hover:shadow-gray-700/50 transition-all">
+
     <div class="text-center flex justify-center">
+
       <img
+
         src="https://i.postimg.cc/8zK9B9HC/logo.png"
+
         alt="Logo"
+
         class="block mx-auto w-full max-w-[240px] mb-2 object-contain"
+
       >
+
     </div>
+
+
 
     <div class="flex-grow flex items-center justify-center py-4">
+
       <input
+
         type="text"
+
         id="loginCode"
+
         placeholder="Login"
+
         class="w-full p-4 text-center text-lg font-bold text-white rounded-lg border-2 border-white/50 placeholder-white/70 focus:outline-none"
+
         autofocus
+
         onkeyup="checkEnter(event)"
+
       >
+
     </div>
+
+
 
     <div id="loadingState" class="hidden flex items-center justify-center py-3 text-white">
+
       <div class="spinner mr-3"></div>
+
       Loading...
+
     </div>
+
+
 
     <button onclick="login()" class="mt-2 w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">
+
       View Status
+
     </button>
+
   </div>
+
+
 
   <div id="saldoMessage" class="hidden w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-2xl transition-all">
+
     <div class="flex justify-between items-start pb-4 border-b border-gray-200 gap-4">
+
       <div class="min-w-0 pr-4 text-left">
+
         <span id="customerName" class="text-xl font-bold text-gray-800 truncate text-left block"></span>
+
       </div>
+
       <div class="text-right">
+
         <div class="flex items-center justify-end gap-2">
+
           <a href="https://surf-center.com/en/trade-in" target="_blank" class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200">i</a>
+
           <span id="customerPayout90" class="text-2xl font-black text-gray-900 leading-none"></span>
+
         </div>
+
         <span id="customerPayout80" class="text-sm font-bold text-gray-400 block mt-2 leading-none text-right"></span>
+
       </div>
+
     </div>
+
+
 
     <p class="text-xs text-gray-400 mt-4 mb-2 uppercase font-bold text-left">Items</p>
+
     <div id="productContainer" class="space-y-0"></div>
 
+
+
     <button onclick="resetApp()" class="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
+
       New Search
+
     </button>
+
   </div>
+
+
 
   <div id="adminScreen" class="hidden w-full max-w-[1500px] mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+
     <div class="grid grid-cols-1 md:grid-cols-[340px_1fr] min-h-[720px]">
+
       <div class="border-r border-gray-200 bg-gray-50 p-6">
+
         <div class="flex items-center justify-between mb-4 gap-3">
+
           <div class="text-left">
+
             <h2 class="text-2xl font-extrabold text-gray-800">Admin</h2>
+
             <p class="text-sm text-gray-500">Overview</p>
+
           </div>
+
           <button onclick="resetApp()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold text-sm whitespace-nowrap">
+
             Logout
+
           </button>
+
         </div>
+
+
 
         <div class="flex gap-2 mb-3">
+
           <input
+
             id="adminSearch"
+
             type="text"
+
             placeholder="Search"
+
             class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"
+
             oninput="filterAdminCustomers()"
+
           />
+
           <button onclick="openTemplateManager()" class="px-4 py-3 bg-black hover:bg-gray-800 text-white rounded-lg font-bold text-sm whitespace-nowrap">
+
             Templates
+
           </button>
+
         </div>
+
+
 
         <button onclick="openCustomerEditor()" class="mb-4 w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold text-left">
+
           + Add customer
+
         </button>
+
+
 
         <div id="adminCustomerList" class="space-y-2 max-h-[560px] overflow-y-auto"></div>
+
       </div>
+
+
 
       <div class="p-6">
+
         <div id="adminEmptyState" class="h-full flex items-center justify-center text-left text-gray-400">
+
           <div>
+
             <p class="mt-2 text-sm">Click a name on the left to view email and products.</p>
+
           </div>
+
         </div>
+
+
 
         <div id="adminDetail" class="hidden">
+
           <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 pb-5 border-b border-gray-200">
+
             <div class="text-left">
-              <h3 id="adminCustomerName" class="text-2xl font-extrabold text-gray-800 text-left"></h3>
+
+              <div class="flex items-center gap-2">
+
+                <h3 id="adminCustomerName" class="text-2xl font-extrabold text-gray-800 text-left"></h3>
+
+                <span id="adminCustomerLanguageFlag" class="text-2xl leading-none"></span>
+
+              </div>
+
               <p id="adminCustomerEmail" class="text-sm text-gray-500 mt-1 text-left"></p>
+
               <p id="adminCustomerLoginCode" class="text-sm text-gray-500 mt-1 text-left"></p>
 
+
+
               <div class="flex flex-wrap gap-3 mt-4">
+
                 <button onclick="openCustomerDraftModal()" class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase">
+
                   mail
+
                 </button>
+
                 <button onclick="openCustomerEditor(selectedCustomer)" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">
+
                   Edit customer
+
                 </button>
+
                 <button onclick="refreshSelectedCustomer()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition">
+
                   Refresh
+
                 </button>
+
               </div>
+
             </div>
+
+
 
             <div class="text-right">
+
               <div class="flex items-center justify-end gap-2">
+
                 <a href="https://surf-center.com/en/trade-in" target="_blank" class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200">i</a>
+
                 <p id="adminCustomerPayout90" class="text-3xl font-black text-gray-900 leading-none text-right"></p>
+
               </div>
+
               <p id="adminCustomerPayout80" class="text-sm font-bold text-gray-400 mt-2 leading-none text-right"></p>
+
             </div>
+
           </div>
+
+
 
           <div class="mt-6">
+
             <div class="flex items-center justify-between mb-3 gap-3">
+
               <h4 class="text-sm uppercase font-bold text-gray-400 text-left">Products</h4>
+
               <button onclick="openProductEditor(null, selectedCustomer)" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition text-sm">
+
                 Add Product
+
               </button>
+
             </div>
+
             <div id="adminProductContainer" class="space-y-3"></div>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
+
 
   <div id="draftModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+
     <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6">
+
       <div class="flex items-start justify-between gap-4 mb-4">
+
         <div class="text-left">
+
           <h3 class="text-xl font-extrabold text-gray-800">Create draft</h3>
+
           <p id="draftModalSubtitle" class="text-sm text-gray-500 mt-1 text-left"></p>
+
         </div>
+
         <button onclick="closeDraftModal()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+
       </div>
+
+
 
       <div class="mb-4 text-left">
+
         <label class="block text-sm font-bold text-gray-600 mb-2">Template</label>
+
         <select id="templateSelect" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"></select>
+
       </div>
+
+
 
       <div class="grid grid-cols-2 gap-3">
+
         <button onclick="openMailDraft('mailto')" class="py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">
+
           Apple draft
+
         </button>
+
         <button onclick="openMailDraft('gmail')" class="py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-bold text-white">
+
           Gmail draft
+
         </button>
+
       </div>
+
     </div>
+
   </div>
+
+
 
   <div id="templateManagerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+
     <div class="w-[96vw] max-w-[1500px] bg-white rounded-2xl shadow-2xl p-6 max-h-[92vh] overflow-hidden">
+
       <div class="flex justify-between items-center mb-4">
+
         <div class="text-left">
+
           <h3 class="text-xl font-extrabold text-gray-800">Manage templates</h3>
+
           <p class="text-sm text-gray-500 mt-1">Create, edit and save directly in the tool</p>
+
         </div>
+
         <button onclick="closeTemplateManager()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+
       </div>
+
+
 
       <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 h-[72vh]">
+
         <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 overflow-y-auto">
+
           <div class="flex items-center justify-between mb-3">
+
             <h4 class="font-bold text-gray-800 text-left">Templates</h4>
+
             <button onclick="newTemplate()" class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-bold">
+
               New
+
             </button>
+
           </div>
+
           <div id="templateList" class="space-y-2"></div>
+
         </div>
+
+
 
         <div class="border border-gray-200 rounded-2xl p-5 overflow-y-auto text-left">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
             <div>
+
               <label class="block text-sm font-bold text-gray-600 mb-2">Template key</label>
+
               <input id="templateKeyInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
             </div>
+
+
 
             <div>
+
               <label class="block text-sm font-bold text-gray-600 mb-2">Type</label>
+
               <select id="templateTypeInput" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left">
+
                 <option value="product">product</option>
+
                 <option value="customer">customer</option>
+
               </select>
+
             </div>
+
+
+
+            <div>
+
+              <label class="block text-sm font-bold text-gray-600 mb-2">Taal</label>
+
+              <select id="templateLanguageInput" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left">
+
+                <option value="">— alle talen —</option>
+
+                <option value="NL">🇳🇱 NL</option>
+
+                <option value="EN">🇬🇧 EN</option>
+
+                <option value="FR">🇫🇷 FR</option>
+
+                <option value="DE">🇩🇪 DE</option>
+
+                <option value="ES">🇪🇸 ES</option>
+
+                <option value="IT">🇮🇹 IT</option>
+
+              </select>
+
+            </div>
+
           </div>
 
+
+
           <div class="mt-4">
+
             <label class="block text-sm font-bold text-gray-600 mb-2">Subject</label>
+
             <input id="templateSubjectInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
           </div>
 
+
+
           <div class="mt-4">
+
             <label class="block text-sm font-bold text-gray-600 mb-2">Body</label>
+
             <textarea id="templateBodyInput" rows="18" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"></textarea>
+
           </div>
+
+
 
           <div class="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+
             <p class="text-sm font-bold text-gray-700 mb-2">Available placeholders</p>
+
             <div id="placeholderButtons" class="flex flex-wrap gap-2"></div>
+
           </div>
+
+
 
           <div class="mt-5 flex gap-3">
+
             <button onclick="saveTemplate()" class="px-5 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-bold text-white">
+
               Save
+
             </button>
+
             <button onclick="newTemplate()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">
+
               Clear
+
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
+
 
   <div id="customerEditorModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+
     <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 text-left">
+
       <div class="flex justify-between items-center mb-4">
+
         <div>
+
           <h3 id="customerEditorTitle" class="text-xl font-extrabold text-gray-800">Edit customer</h3>
+
           <p class="text-sm text-gray-500 mt-1">Add or edit a customer</p>
+
         </div>
+
         <button onclick="closeCustomerEditor()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+
       </div>
+
+
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Voornaam</label>
+
           <input id="customerFirstNameInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Achternaam</label>
+
           <input id="customerLastNameInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Nummer (login)</label>
+
           <input id="customerNumberInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Email</label>
+
           <input id="customerEmailInput" type="email" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
       </div>
 
+
+
       <div class="flex gap-3 mt-6">
+
         <button onclick="closeCustomerEditor()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">Cancel</button>
+
         <button onclick="saveCustomer()" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-bold text-white">Save customer</button>
+
       </div>
+
     </div>
+
   </div>
+
+
 
   <div id="productEditorModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+
     <div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-6 max-h-[92vh] overflow-y-auto text-left">
+
       <div class="flex justify-between items-center mb-4">
+
         <div>
+
           <h3 id="productEditorTitle" class="text-xl font-extrabold text-gray-800">Edit product</h3>
+
           <p class="text-sm text-gray-500 mt-1">Add or edit a product</p>
+
         </div>
+
         <button onclick="closeProductEditor()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+
       </div>
+
+
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Naam klant</label>
+
           <input id="productCustomerNameInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none text-left" readonly />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Product</label>
+
           <input id="productNameInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Min. price</label>
+
           <input id="productMinPriceInput" type="number" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Price</label>
+
           <input id="productPriceInput" type="number" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Barcode</label>
+
           <input id="productBarcodeInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" placeholder="Can be added later" />
+
         </div>
+
         <div>
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Link</label>
+
           <input id="productLinkInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" placeholder="Can be added later" />
+
         </div>
+
         <div class="md:col-span-2">
+
           <label class="block text-sm font-bold text-gray-600 mb-2">Sale price</label>
+
           <input id="productSalePriceInput" type="number" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+
         </div>
+
       </div>
 
+
+
       <div class="mt-5">
+
         <label class="block text-sm font-bold text-gray-600 mb-2">Sold</label>
+
         <div class="flex items-center gap-3 h-[50px] px-4 rounded-lg border border-gray-300 bg-white w-fit">
+
           <label class="switch">
+
             <input type="checkbox" id="productStatusInput">
+
             <span class="slider"></span>
+
           </label>
+
           <span class="text-sm font-bold text-gray-700">Sold</span>
+
         </div>
+
       </div>
 
+
+
       <div class="mt-5">
+
         <label class="block text-sm font-bold text-gray-600 mb-2">EOL</label>
+
         <div class="flex items-center gap-3 h-[50px] px-4 rounded-lg border border-gray-300 bg-white w-fit">
+
           <label class="switch">
+
             <input type="checkbox" id="productEolInput">
+
             <span class="slider"></span>
+
           </label>
+
           <span class="text-sm font-bold text-gray-700">EOL</span>
+
         </div>
+
       </div>
+
+
 
       <div class="flex gap-3 mt-6">
+
         <button onclick="closeProductEditor()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">Cancel</button>
+
         <button onclick="saveProduct()" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-bold text-white">Save product</button>
+
       </div>
+
     </div>
+
   </div>
 
+
+
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_XJSWv8Z68ysU7giqwX00HMJnUnIEhEtcOH-3oOJ1E15n10NNIeXBjjRF-f6EcbXpLA/exec';
+
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdsKiU1N-1SS9xZvOqtpsRX5LrubmBg_rhZtoKb0ZXg8_4LJqDZ5xQ35M5snZOYhe9vg/exec';
+
+
 
     const PLACEHOLDERS = [
+
       '{{Name}}',
+
       '{{FirstName}}',
+
       '{{Email}}',
+
       '{{Saldo}}',
+
       '{{Saldo90}}',
+
       '{{Saldo80}}',
+
       '{{Payout90}}',
+
       '{{Payout80}}',
+
       '{{LoginCode}}',
+
       '{{Product}}',
+
       '{{MinPrice}}',
+
       '{{Price}}',
+
       '{{Barcode}}',
+
       '{{Link}}',
+
       '{{Status}}',
+
       '{{SalePrice}}',
+
       '{{TradeInLink}}'
+
     ];
 
+
+
+    const LANGUAGE_FLAGS = {
+
+      'NL': '🇳🇱',
+
+      'EN': '🇬🇧',
+
+      'FR': '🇫🇷',
+
+      'DE': '🇩🇪',
+
+      'ES': '🇪🇸',
+
+      'IT': '🇮🇹',
+
+    };
+
+
+
+    function languageFlag(lang) {
+
+      if (!lang) return '';
+
+      return LANGUAGE_FLAGS[String(lang).toUpperCase().trim()] || String(lang).toUpperCase().trim();
+
+    }
+
+
+
     let adminCustomers = [];
+
     let adminTemplates = [];
+
     let selectedCustomer = null;
+
     let selectedProduct = null;
+
     let editingTemplateKey = null;
+
     let editingCustomerOriginalNummer = null;
+
     let editingProductOriginalBarcode = null;
+
     let draftMode = 'customer';
 
+
+
     function escapeHtml(value) {
+
       return String(value || '')
+
         .replace(/&/g, '&amp;')
+
         .replace(/</g, '&lt;')
+
         .replace(/>/g, '&gt;')
+
         .replace(/"/g, '&quot;')
+
         .replace(/'/g, '&#039;');
+
     }
+
+
 
     function formatEuro(value) {
+
       const numeric = parseFloat(String(value || '').replace(',', '.'));
+
       if (isNaN(numeric)) return '€0';
+
       return '€' + Math.round(numeric).toLocaleString('en-GB');
+
     }
+
+
 
     function showError(message) {
+
       const err = document.getElementById('errorMessage');
+
       err.innerHTML = `<span class="font-medium">Niet gevonden:</span> ${escapeHtml(message || 'Controleer je login.')}`;
+
       err.classList.remove('hidden');
+
       setTimeout(() => err.classList.add('hidden'), 4000);
+
     }
+
+
 
     function checkEnter(e) {
+
       if (e.key === 'Enter') login();
+
     }
+
+
 
     async function parseResponse(response) {
+
       const text = await response.text();
+
       try {
+
         return JSON.parse(text);
+
       } catch (e) {
+
         throw new Error(text || 'Invalid JSON response');
+
       }
+
     }
+
+
 
     async function postData(payload) {
+
       const response = await fetch(APPS_SCRIPT_URL, {
+
         method: 'POST',
+
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+
         body: JSON.stringify(payload)
+
       });
+
       return await parseResponse(response);
+
     }
+
+
 
     async function login() {
+
       const id = document.getElementById('loginCode').value.trim();
+
       if (!id) return;
 
+
+
       document.getElementById('loadingState').classList.remove('hidden');
+
       document.getElementById('errorMessage').classList.add('hidden');
 
+
+
       try {
+
         const response = await fetch(`${APPS_SCRIPT_URL}?action=login&id=${encodeURIComponent(id)}`);
+
         const data = await parseResponse(response);
 
+
+
         document.getElementById('loadingState').classList.add('hidden');
+
+
 
         if (!data || data.success === false || !data.mode) {
+
           showError((data && data.error) || 'Controleer je login.');
+
           return;
+
         }
+
+
 
         if (data.mode === 'admin') {
+
           await openAdminMode();
+
           return;
+
         }
 
+
+
         renderCustomerView(data.customer || data);
+
       } catch (e) {
+
         console.error(e);
+
         document.getElementById('loadingState').classList.add('hidden');
+
         showError(e.message || 'Er ging iets mis.');
+
       }
+
     }
 
+
+
     function renderCustomerView(customer) {
+
       document.getElementById('customerName').textContent = customer.name || '';
+
       document.getElementById('customerPayout90').textContent = formatEuro(customer.saldo90 || 0);
+
       document.getElementById('customerPayout80').textContent = formatEuro(customer.saldo80 || 0);
 
+
+
       const container = document.getElementById('productContainer');
+
       container.innerHTML = '';
 
+
+
       if (!customer.items || !customer.items.length) {
+
         container.innerHTML = "<p class='text-gray-400 italic text-left text-sm py-4'>No items found.</p>";
+
       } else {
+
         customer.items.forEach(item => {
+
           const el = document.createElement('div');
+
           el.className = 'py-4 border-b border-gray-100 text-sm';
 
+
+
           let finalLink = item.link;
+
           if (!finalLink || finalLink.trim() === '') {
+
             finalLink = `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
+
           }
+
+
 
           const dotClass = String(item.status || '').toLowerCase() === 'green' ? 'status-green' : 'status-black';
 
+
+
           el.innerHTML = `
+
             <div class="grid grid-cols-[1fr_auto] gap-4 items-start">
+
               <a href="${escapeHtml(finalLink)}" target="_blank" class="min-w-0 text-left block">
+
                 <div class="flex items-start gap-3">
+
                   <span class="status-dot ${dotClass}"></span>
+
                   <div class="min-w-0">
+
                     <span class="font-semibold text-gray-900 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
+
                     ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
+
                     <div class="text-xs text-gray-500 mt-2 text-left">
+
                       Min. price: ${escapeHtml(formatEuro(item.minPrice))}
+
                       &nbsp;&nbsp;|&nbsp;&nbsp;
+
                       Price: ${escapeHtml(formatEuro(item.price))}
+
                     </div>
+
                   </div>
+
                 </div>
+
               </a>
+
               <div class="font-bold text-gray-900 text-right whitespace-nowrap min-w-[96px] pt-0 leading-tight">
+
                 ${escapeHtml(formatEuro(item.salePrice))}
+
               </div>
+
             </div>
+
           `;
+
           container.appendChild(el);
+
         });
+
       }
 
+
+
       hideAllScreens();
+
       document.getElementById('saldoMessage').classList.remove('hidden');
+
     }
+
+
 
     async function openAdminMode() {
+
       hideAllScreens();
+
       document.getElementById('adminScreen').classList.remove('hidden');
+
       document.getElementById('adminDetail').classList.add('hidden');
+
       document.getElementById('adminEmptyState').classList.remove('hidden');
+
       await Promise.all([loadAdminCustomers(), loadTemplates()]);
+
       renderPlaceholderButtons();
+
     }
+
+
 
     async function loadAdminCustomers() {
+
       const response = await fetch(`${APPS_SCRIPT_URL}?action=getAdminCustomers`);
+
       const data = await parseResponse(response);
+
+
 
       if (!data.success) {
+
         alert(data.error || 'Could not load customers');
+
         return;
+
       }
+
+
 
       adminCustomers = data.customers || [];
+
       renderAdminCustomers(adminCustomers);
+
     }
+
+
 
     function renderAdminCustomers(customers) {
+
       const container = document.getElementById('adminCustomerList');
+
       container.innerHTML = '';
 
+
+
       if (!customers.length) {
+
         container.innerHTML = `<div class="text-sm text-gray-400 p-4 text-left">No customers found.</div>`;
+
         return;
+
       }
+
+
 
       customers.forEach(customer => {
+
+        const flag = languageFlag(customer.language);
+
         const button = document.createElement('button');
+
         button.className = 'w-full text-left bg-white hover:bg-cyan-50 border border-gray-200 rounded-xl p-4 transition';
+
         button.innerHTML = `
+
           <div class="min-w-0 text-left">
-            <div class="font-bold text-gray-800 truncate">${escapeHtml(customer.name || '')}</div>
+
+            <div class="font-bold text-gray-800 truncate flex items-center gap-2">
+
+              ${escapeHtml(customer.name || '')}
+
+              ${flag ? `<span class="text-base leading-none">${flag}</span>` : ''}
+
+            </div>
+
             <div class="text-xs text-gray-400 mt-1">Login: ${escapeHtml(customer.loginCode || '')}</div>
+
           </div>
+
         `;
+
         button.addEventListener('click', () => openCustomerDetail(customer.name));
+
         container.appendChild(button);
+
       });
+
     }
+
+
 
     function filterAdminCustomers() {
+
       const term = document.getElementById('adminSearch').value.trim().toLowerCase();
+
       const filtered = adminCustomers.filter(customer =>
+
         String(customer.name || '').toLowerCase().includes(term) ||
+
         String(customer.loginCode || '').toLowerCase().includes(term) ||
+
         String(customer.email || '').toLowerCase().includes(term)
+
       );
+
       renderAdminCustomers(filtered);
+
     }
 
+
+
     async function openCustomerDetail(customerName) {
+
       const response = await fetch(`${APPS_SCRIPT_URL}?action=getCustomerDetails&name=${encodeURIComponent(customerName)}`);
+
       const data = await parseResponse(response);
 
+
+
       if (!data.success || !data.customer) {
+
         alert(data.error || 'Could not load customer details');
+
         return;
+
       }
+
+
 
       selectedCustomer = data.customer;
 
+
+
       document.getElementById('adminEmptyState').classList.add('hidden');
+
       document.getElementById('adminDetail').classList.remove('hidden');
+
       document.getElementById('adminCustomerName').textContent = selectedCustomer.name || '';
+
+      document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
+
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
+
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
+
       document.getElementById('adminCustomerPayout90').textContent = formatEuro(selectedCustomer.saldo90 || 0);
+
       document.getElementById('adminCustomerPayout80').textContent = formatEuro(selectedCustomer.saldo80 || 0);
 
+
+
       renderAdminProducts(selectedCustomer);
+
     }
+
+
 
     async function refreshSelectedCustomer() {
+
       if (!selectedCustomer || !selectedCustomer.name) return;
+
       await openCustomerDetail(selectedCustomer.name);
+
     }
 
+
+
     async function toggleStatus(barcode) {
+
       const product = selectedCustomer.items.find(p => String(p.barcode || '') === String(barcode || ''));
+
       if (!product) return;
+
+
 
       const newStatus = String(product.status || '').toLowerCase() === 'green' ? 'black' : 'green';
 
+
+
       const data = await postData({
+
         action: 'saveProduct',
+
         originalBarcode: barcode,
+
         customerName: selectedCustomer.name,
+
         product: product.product,
+
         minPrice: product.minPrice,
+
         price: product.price,
+
         barcode: product.barcode,
+
         link: product.link,
+
         status: newStatus,
+
         salePrice: product.salePrice,
+
         eol: product.eol
+
       });
 
+
+
       if (!data.success) {
+
         alert(data.error || 'Saving failed');
+
         return;
+
       }
 
+
+
       await refreshSelectedCustomer();
+
     }
 
+
+
     async function toggleEol(barcode) {
+
       const product = selectedCustomer.items.find(p => String(p.barcode || '') === String(barcode || ''));
+
       if (!product) return;
+
+
 
       const newEol = String(product.eol || '').toLowerCase() === 'yes' ? 'no' : 'yes';
 
+
+
       const data = await postData({
+
         action: 'saveProduct',
+
         originalBarcode: barcode,
+
         customerName: selectedCustomer.name,
+
         product: product.product,
+
         minPrice: product.minPrice,
+
         price: product.price,
+
         barcode: product.barcode,
+
         link: product.link,
+
         status: product.status,
+
         salePrice: product.salePrice,
+
         eol: newEol
+
       });
 
+
+
       if (!data.success) {
+
         alert(data.error || 'Saving failed');
+
         return;
+
       }
+
+
 
       await refreshSelectedCustomer();
+
     }
+
+
 
     function renderStatusToggle(item) {
+
       const isSold = String(item.status || '').toLowerCase() === 'green';
+
       const checked = isSold ? 'checked' : '';
+
       const barcodeSafe = JSON.stringify(item.barcode || '');
 
+
+
       return `
+
         <div class="flex items-center justify-end gap-3 mt-3">
+
           <label class="switch">
+
             <input type="checkbox" ${checked} onchange="toggleStatus(${barcodeSafe})">
+
             <span class="slider"></span>
+
           </label>
+
           <span class="text-xs font-bold ${isSold ? 'text-gray-700' : 'text-gray-400'}">Sold</span>
+
         </div>
+
       `;
+
     }
+
+
 
     function renderEolToggle(item) {
+
       const isEol = String(item.eol || '').toLowerCase() === 'yes';
+
       const checked = isEol ? 'checked' : '';
+
       const barcodeSafe = JSON.stringify(item.barcode || '');
 
+
+
       return `
+
         <div class="flex items-center justify-end gap-3 mt-3">
+
           <label class="switch">
+
             <input type="checkbox" ${checked} onchange="toggleEol(${barcodeSafe})">
+
             <span class="slider"></span>
+
           </label>
+
           <span class="text-xs font-bold ${isEol ? 'text-gray-700' : 'text-gray-400'}">EOL</span>
+
         </div>
+
       `;
+
     }
+
+
 
     function renderAdminProducts(customer) {
+
       const container = document.getElementById('adminProductContainer');
+
       container.innerHTML = '';
+
+
 
       if (!customer.items || !customer.items.length) {
+
         container.innerHTML = `<div class="text-sm text-gray-400 text-left">No products found.</div>`;
+
         return;
+
       }
+
+
 
       customer.items.forEach(item => {
+
         const finalLink = item.link && item.link.trim() !== ''
+
           ? item.link
+
           : `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
 
+
+
         const card = document.createElement('div');
+
         card.className = 'border border-gray-200 rounded-xl p-4 bg-gray-50';
 
+
+
         card.innerHTML = `
+
           <div class="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-4 items-start">
+
             <div class="min-w-0 text-left">
+
               <a href="${escapeHtml(finalLink)}" target="_blank" class="font-bold text-gray-900 hover:underline block text-left leading-tight">${escapeHtml(item.product || '')}</a>
+
               ${item.barcode ? `<div class="article-number block">SKU: ${escapeHtml(item.barcode)}</div>` : ''}
+
               <div class="mt-3 text-sm text-gray-500 leading-6 text-left">
+
                 Min. price: <strong>${escapeHtml(formatEuro(item.minPrice))}</strong>
+
                 &nbsp;&nbsp;|&nbsp;&nbsp;
+
                 Price: <strong>${escapeHtml(formatEuro(item.price))}</strong>
+
                 &nbsp;&nbsp;|&nbsp;&nbsp;
+
                 Sale price: <strong>${escapeHtml(formatEuro(item.salePrice))}</strong>
+
               </div>
+
             </div>
+
+
 
             <div class="flex flex-col items-end gap-3">
+
               <div class="flex flex-wrap justify-end gap-3">
+
                 <button class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase admin-product-mail-btn">mail</button>
+
                 <button class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition admin-product-edit-btn">Edit</button>
+
               </div>
+
               <div class="flex flex-col items-end">
+
                 ${renderStatusToggle(item)}
+
                 ${renderEolToggle(item)}
+
               </div>
+
             </div>
+
           </div>
+
         `;
+
+
 
         card.querySelector('.admin-product-mail-btn').addEventListener('click', () => openProductDraftModal(item));
+
         card.querySelector('.admin-product-edit-btn').addEventListener('click', () => openProductEditor(item, customer));
 
+
+
         container.appendChild(card);
+
       });
+
     }
+
+
 
     async function loadTemplates() {
+
       const response = await fetch(`${APPS_SCRIPT_URL}?action=getTemplates`);
+
       const data = await parseResponse(response);
 
+
+
       if (!data.success) {
+
         alert(data.error || 'Could not load templates');
+
         return;
+
       }
+
+
 
       adminTemplates = data.templates || [];
+
     }
+
+
 
     function openCustomerDraftModal() {
+
       if (!selectedCustomer) return;
+
       draftMode = 'customer';
+
       selectedProduct = null;
+
       populateTemplateSelect('customer');
+
       document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} — algemene mail`;
+
       document.getElementById('draftModal').classList.remove('hidden');
+
     }
+
+
 
     function openProductDraftModal(item) {
+
       selectedProduct = item;
+
       draftMode = 'product';
+
       populateTemplateSelect('product');
+
       document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} — ${item.product || ''}`;
+
       document.getElementById('draftModal').classList.remove('hidden');
+
     }
+
+
 
     function closeDraftModal() {
+
       document.getElementById('draftModal').classList.add('hidden');
+
     }
+
+
 
     function populateTemplateSelect(type) {
+
       const select = document.getElementById('templateSelect');
+
       select.innerHTML = '';
-      const filtered = adminTemplates.filter(template => template.type === type);
+
+      const customerLang = String(selectedCustomer?.language || '').toUpperCase().trim();
+
+      const filtered = adminTemplates.filter(template => {
+
+        if (template.type !== type) return false;
+
+        const templateLang = String(template.language || '').toUpperCase().trim();
+
+        // Show template if it has no language set, OR if it matches the customer's language
+
+        return !templateLang || !customerLang || templateLang === customerLang;
+
+      });
+
+
 
       if (!filtered.length) {
+
         const option = document.createElement('option');
+
         option.value = '';
+
         option.textContent = 'No templates available';
+
         select.appendChild(option);
+
         return;
+
       }
+
+
 
       filtered.forEach(template => {
+
         const option = document.createElement('option');
+
         option.value = template.key;
-        option.textContent = `${template.key} — ${template.subject}`;
+
+        const flag = languageFlag(template.language);
+
+        option.textContent = `${flag ? flag + ' ' : ''}${template.key} — ${template.subject}`;
+
         select.appendChild(option);
+
       });
+
     }
+
+
 
     function renderPlaceholderButtons() {
+
       const container = document.getElementById('placeholderButtons');
+
       container.innerHTML = '';
+
+
 
       PLACEHOLDERS.forEach(token => {
+
         const btn = document.createElement('button');
+
         btn.type = 'button';
+
         btn.className = 'placeholder-chip';
+
         btn.textContent = token;
+
         btn.addEventListener('click', () => insertAtCursor('templateBodyInput', token));
+
         container.appendChild(btn);
+
       });
+
     }
+
+
 
     function insertAtCursor(textareaId, text) {
+
       const textarea = document.getElementById(textareaId);
+
       textarea.focus();
+
       const start = textarea.selectionStart || 0;
+
       const end = textarea.selectionEnd || 0;
+
       const current = textarea.value || '';
+
       textarea.value = current.slice(0, start) + text + current.slice(end);
+
       textarea.selectionStart = textarea.selectionEnd = start + text.length;
+
     }
+
+
 
     function mergeTemplateText(template, customer, product) {
+
       const replacements = {
+
         '{{Name}}': customer?.name || '',
+
         '{{FirstName}}': customer?.firstName || '',
+
         '{{Email}}': customer?.email || '',
+
         '{{Saldo}}': formatEuro(customer?.saldo || 0),
+
         '{{Saldo90}}': formatEuro(customer?.saldo90 || 0),
+
         '{{Saldo80}}': formatEuro(customer?.saldo80 || 0),
+
         '{{Payout90}}': formatEuro(customer?.saldo90 || 0),
+
         '{{Payout80}}': formatEuro(customer?.saldo80 || 0),
+
         '{{LoginCode}}': customer?.loginCode || '',
+
         '{{Product}}': product?.product || '',
+
         '{{MinPrice}}': formatEuro(product?.minPrice || 0),
+
         '{{Price}}': formatEuro(product?.price || 0),
+
         '{{Barcode}}': product?.barcode || '',
+
         '{{Link}}': product?.link || '',
+
         '{{Status}}': String(product?.status || ''),
+
         '{{SalePrice}}': formatEuro(product?.salePrice || 0),
+
         '{{TradeInLink}}': 'https://surf-center.com/en/trade-in'
+
       };
+
+
 
       let subject = template.subject || '';
+
       let body = template.body || '';
 
+
+
       Object.keys(replacements).forEach(key => {
+
         subject = subject.split(key).join(replacements[key]);
+
         body = body.split(key).join(replacements[key]);
+
       });
+
+
 
       return { subject, body };
+
     }
+
+
 
     function openMailDraft(type) {
+
       const templateKey = document.getElementById('templateSelect').value;
+
       if (!templateKey) {
+
         alert('Please choose a template first');
+
         return;
+
       }
+
+
 
       const template = adminTemplates.find(t => t.key === templateKey);
+
       if (!template) {
+
         alert('Template not found');
+
         return;
+
       }
+
+
 
       const merged = mergeTemplateText(template, selectedCustomer, draftMode === 'product' ? selectedProduct : null);
+
       const to = encodeURIComponent(selectedCustomer?.email || '');
+
       const subject = encodeURIComponent(merged.subject || '');
+
       const body = encodeURIComponent(merged.body || '');
 
+
+
       if (type === 'gmail') {
+
         window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`, '_blank');
+
       } else {
+
         window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+
       }
+
+
 
       closeDraftModal();
+
     }
+
+
 
     function openTemplateManager() {
+
       renderTemplateList();
+
       renderPlaceholderButtons();
+
       document.getElementById('templateManagerModal').classList.remove('hidden');
+
     }
+
+
 
     function closeTemplateManager() {
+
       document.getElementById('templateManagerModal').classList.add('hidden');
+
     }
+
+
 
     function renderTemplateList() {
+
       const container = document.getElementById('templateList');
+
       container.innerHTML = '';
 
+
+
       if (!adminTemplates.length) {
+
         container.innerHTML = `<div class="text-sm text-gray-400 text-left">No templates found.</div>`;
+
         return;
+
       }
+
+
 
       adminTemplates.forEach(template => {
+
+        const flag = languageFlag(template.language);
+
         const btn = document.createElement('button');
+
         btn.className = 'w-full text-left bg-white hover:bg-cyan-50 border border-gray-200 rounded-xl p-3 transition';
+
         btn.innerHTML = `
-          <div class="font-bold text-gray-800 text-left">${escapeHtml(template.key)}</div>
+
+          <div class="font-bold text-gray-800 text-left flex items-center gap-2">
+
+            ${flag ? `<span class="text-base leading-none">${flag}</span>` : ''}
+
+            ${escapeHtml(template.key)}
+
+          </div>
+
           <div class="text-sm text-gray-500 mt-1 text-left">${escapeHtml(template.type)} · ${escapeHtml(template.subject)}</div>
+
         `;
+
         btn.addEventListener('click', () => loadTemplateIntoForm(template));
+
         container.appendChild(btn);
+
       });
+
     }
+
+
 
     function loadTemplateIntoForm(template) {
+
       editingTemplateKey = template.key || null;
+
       document.getElementById('templateKeyInput').value = template.key || '';
+
       document.getElementById('templateTypeInput').value = template.type || 'product';
+
+      document.getElementById('templateLanguageInput').value = template.language || '';
+
       document.getElementById('templateSubjectInput').value = template.subject || '';
+
       document.getElementById('templateBodyInput').value = template.body || '';
+
     }
+
+
 
     function newTemplate() {
+
       editingTemplateKey = null;
+
       document.getElementById('templateKeyInput').value = '';
+
       document.getElementById('templateTypeInput').value = 'product';
+
+      document.getElementById('templateLanguageInput').value = '';
+
       document.getElementById('templateSubjectInput').value = '';
+
       document.getElementById('templateBodyInput').value = '';
+
     }
+
+
 
     async function saveTemplate() {
+
       const payload = {
+
         action: 'saveTemplate',
+
         originalKey: editingTemplateKey,
+
         key: document.getElementById('templateKeyInput').value.trim(),
+
         type: document.getElementById('templateTypeInput').value,
+
+        language: document.getElementById('templateLanguageInput').value,
+
         subject: document.getElementById('templateSubjectInput').value.trim(),
+
         body: document.getElementById('templateBodyInput').value
+
       };
+
+
 
       if (!payload.key) {
+
         alert('Template key is required');
+
         return;
+
       }
+
+
 
       try {
+
         const data = await postData(payload);
 
+
+
         if (data.success) {
+
           alert('Template saved');
+
           editingTemplateKey = payload.key;
+
           await loadTemplates();
+
           renderTemplateList();
+
         } else {
+
           alert(data.error || 'Saving failed');
+
         }
+
       } catch (err) {
+
         console.error(err);
+
         alert(err.message || 'Saving failed');
+
       }
+
     }
+
+
 
     function openCustomerEditor(customer = null) {
+
       editingCustomerOriginalNummer = customer?.loginCode || null;
+
       document.getElementById('customerEditorTitle').textContent = customer ? 'Edit customer' : 'Add customer';
+
       document.getElementById('customerFirstNameInput').value = customer?.firstName || '';
+
       document.getElementById('customerLastNameInput').value = customer?.lastName || '';
+
       document.getElementById('customerNumberInput').value = customer?.loginCode || '';
+
       document.getElementById('customerEmailInput').value = customer?.email || '';
+
       document.getElementById('customerEditorModal').classList.remove('hidden');
+
     }
+
+
 
     function closeCustomerEditor() {
+
       document.getElementById('customerEditorModal').classList.add('hidden');
+
     }
+
+
 
     async function saveCustomer() {
+
       const payload = {
+
         action: 'saveCustomer',
+
         originalNummer: editingCustomerOriginalNummer,
+
         nummer: document.getElementById('customerNumberInput').value.trim(),
+
         firstName: document.getElementById('customerFirstNameInput').value.trim(),
+
         name: document.getElementById('customerLastNameInput').value.trim(),
+
         email: document.getElementById('customerEmailInput').value.trim()
+
       };
+
+
 
       if (!payload.nummer || !payload.firstName || !payload.name) {
+
         alert('Voornaam, achternaam en nummer zijn verplicht');
+
         return;
+
       }
+
+
 
       try {
+
         const data = await postData(payload);
 
+
+
         if (data.success) {
+
           alert('Customer saved');
+
           closeCustomerEditor();
+
           await loadAdminCustomers();
+
           await openCustomerDetail(`${payload.firstName} ${payload.name}`.trim());
+
         } else {
+
           alert(data.error || 'Saving failed');
+
         }
+
       } catch (err) {
+
         console.error(err);
+
         alert(err.message || 'Saving failed');
+
       }
+
     }
+
+
 
     function openProductEditor(product = null, customer = null) {
+
       editingProductOriginalBarcode = product?.barcode || null;
+
       document.getElementById('productEditorTitle').textContent = product ? 'Edit product' : 'Add product';
+
       document.getElementById('productCustomerNameInput').value = customer?.name || selectedCustomer?.name || '';
+
       document.getElementById('productNameInput').value = product?.product || '';
+
       document.getElementById('productMinPriceInput').value = product?.minPrice || '';
+
       document.getElementById('productPriceInput').value = product?.price || '';
+
       document.getElementById('productStatusInput').checked = String(product?.status || '').toLowerCase() === 'green';
+
       document.getElementById('productEolInput').checked = String(product?.eol || '').toLowerCase() === 'yes';
+
       document.getElementById('productBarcodeInput').value = product?.barcode || '';
+
       document.getElementById('productLinkInput').value = product?.link || '';
+
       document.getElementById('productSalePriceInput').value = product?.salePrice || '';
+
       document.getElementById('productEditorModal').classList.remove('hidden');
+
     }
+
+
 
     function closeProductEditor() {
+
       document.getElementById('productEditorModal').classList.add('hidden');
+
     }
+
+
 
     async function saveProduct() {
+
       const payload = {
+
         action: 'saveProduct',
+
         originalBarcode: editingProductOriginalBarcode,
+
         customerName: selectedCustomer?.name || '',
+
         product: document.getElementById('productNameInput').value.trim(),
+
         minPrice: document.getElementById('productMinPriceInput').value.trim(),
+
         price: document.getElementById('productPriceInput').value.trim(),
+
         barcode: document.getElementById('productBarcodeInput').value.trim(),
+
         link: document.getElementById('productLinkInput').value.trim(),
+
         status: document.getElementById('productStatusInput').checked ? 'green' : 'black',
+
         salePrice: document.getElementById('productSalePriceInput').value.trim(),
+
         eol: document.getElementById('productEolInput').checked ? 'yes' : 'no'
+
       };
 
+
+
       if (!payload.customerName || !payload.product) {
+
         alert('Customer name and product are required');
+
         return;
+
       }
+
+
 
       try {
+
         const data = await postData(payload);
 
+
+
         if (data.success) {
+
           closeProductEditor();
+
           await refreshSelectedCustomer();
+
           alert('Product saved');
+
         } else {
+
           alert(data.error || 'Saving failed');
+
         }
+
       } catch (err) {
+
         console.error(err);
+
         alert(err.message || 'Saving failed');
+
       }
+
     }
+
+
 
     function hideAllScreens() {
+
       document.getElementById('inputScreen').classList.add('hidden-force');
+
       document.getElementById('saldoMessage').classList.add('hidden');
+
       document.getElementById('adminScreen').classList.add('hidden');
+
     }
+
+
 
     function resetApp() {
+
       document.getElementById('saldoMessage').classList.add('hidden');
+
       document.getElementById('adminScreen').classList.add('hidden');
+
       document.getElementById('adminDetail').classList.add('hidden');
+
       document.getElementById('adminEmptyState').classList.remove('hidden');
+
       document.getElementById('draftModal').classList.add('hidden');
+
       document.getElementById('templateManagerModal').classList.add('hidden');
+
       document.getElementById('customerEditorModal').classList.add('hidden');
+
       document.getElementById('productEditorModal').classList.add('hidden');
 
+
+
       const inputScreen = document.getElementById('inputScreen');
+
       inputScreen.classList.remove('hidden-force');
+
       inputScreen.style.display = 'flex';
 
+
+
       document.getElementById('loginCode').value = '';
+
       document.getElementById('loginCode').focus();
+
       document.getElementById('adminSearch').value = '';
 
+
+
       selectedCustomer = null;
+
       selectedProduct = null;
+
       editingTemplateKey = null;
+
       editingCustomerOriginalNummer = null;
+
       editingProductOriginalBarcode = null;
+
       draftMode = 'customer';
+
     }
+
   </script>
+
 </body>
+
 </html>
