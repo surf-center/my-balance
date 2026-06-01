@@ -276,7 +276,7 @@
             <div>
               <label class="block text-sm font-bold text-gray-600 mb-2">Taal</label>
               <select id="templateLanguageInput" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left">
-                <option value="">‚Äî alle talen ‚Äî</option>
+                <option value="">-- alle talen --</option>
                 <option value="NL">&#x1F1F3;&#x1F1F1; NL</option>
                 <option value="EN">&#x1F1EC;&#x1F1E7; EN</option>
                 <option value="FR">&#x1F1EB;&#x1F1F7; FR</option>
@@ -440,7 +440,7 @@
     let editingProductOriginalBarcode = null;
     let draftMode = 'customer';
 
-    // ‚îÄ‚îÄ‚îÄ UTILS ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- UTILS ----------------------------------------------------------------
 
     function escapeHtml(value) {
       return String(value || '')
@@ -490,7 +490,7 @@
       return await parseResponse(response);
     }
 
-    // ‚îÄ‚îÄ‚îÄ LOGIN ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- LOGIN ----------------------------------------------------------------
 
     async function login() {
       const id = document.getElementById('loginCode').value.trim();
@@ -514,7 +514,7 @@
       }
     }
 
-    // ‚îÄ‚îÄ‚îÄ CUSTOMER VIEW ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- CUSTOMER VIEW --------------------------------------------------------
 
     function renderCustomerView(customer) {
       document.getElementById('customerName').textContent = customer.name || '';
@@ -595,7 +595,7 @@
       });
     }
 
-    // ‚îÄ‚îÄ‚îÄ ADMIN MODE ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- ADMIN MODE -----------------------------------------------------------
 
     async function openAdminMode() {
       hideAllScreens();
@@ -680,7 +680,7 @@
       await openCustomerDetail(selectedCustomer.name);
     }
 
-    // ‚îÄ‚îÄ‚îÄ ADMIN TRANSACTIONS ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- ADMIN TRANSACTIONS ---------------------------------------------------
 
     function openTransactionModal(type) {
       if (!selectedCustomer) return;
@@ -740,7 +740,7 @@
       draftMode = 'transaction';
       populateTemplateSelect(tx.type);
       document.getElementById('draftModalSubtitle').textContent =
-        `${selectedCustomer?.name || ''} ‚Äî ${TRANSACTION_LABELS[tx.type] || tx.type} ${formatEuro(tx.bedrag)}`;
+        `${selectedCustomer?.name || ''} -- ${TRANSACTION_LABELS[tx.type] || tx.type} ${formatEuro(tx.bedrag)}`;
       document.getElementById('draftModal').classList.remove('hidden');
     }
 
@@ -767,7 +767,7 @@
           <div class="flex items-center gap-2 shrink-0">
             <span class="font-bold text-gray-900">${escapeHtml(formatEuro(tx.bedrag))}</span>
             <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
-            <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-del-btn">√ó</button>
+            <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-del-btn">x</button>
           </div>`;
         row.querySelector('.tx-mail-btn').addEventListener('click', () => openTransactionDraftModal(tx));
         row.querySelector('.tx-del-btn').addEventListener('click', () => deleteTransactionRecord(tx));
@@ -775,7 +775,7 @@
       });
     }
 
-    // ‚îÄ‚îÄ‚îÄ PRODUCTS ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- PRODUCTS -------------------------------------------------------------
 
     async function toggleStatus(barcode) {
       const product = selectedCustomer.items.find(p => String(p.barcode || '') === String(barcode || ''));
@@ -854,7 +854,7 @@
       });
     }
 
-    // ‚îÄ‚îÄ‚îÄ TEMPLATES ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- TEMPLATES ------------------------------------------------------------
 
     async function loadTemplates() {
       const response = await fetch(`${APPS_SCRIPT_URL}?action=getTemplates`);
@@ -869,7 +869,7 @@
       selectedProduct = null;
       selectedTransaction = null;
       populateTemplateSelect('customer');
-      document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} ‚Äî algemene mail`;
+      document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} -- algemene mail`;
       document.getElementById('draftModal').classList.remove('hidden');
     }
 
@@ -878,7 +878,7 @@
       selectedTransaction = null;
       draftMode = 'product';
       populateTemplateSelect('product');
-      document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} ‚Äî ${item.product || ''}`;
+      document.getElementById('draftModalSubtitle').textContent = `${selectedCustomer?.name || ''} -- ${item.product || ''}`;
       document.getElementById('draftModal').classList.remove('hidden');
     }
 
@@ -906,7 +906,7 @@
         const option = document.createElement('option');
         option.value = template.key;
         const flag = languageFlag(template.language);
-        option.textContent = `${flag ? flag + ' ' : ''}${template.key} ‚Äî ${template.subject}`;
+        option.textContent = `${flag ? flag + ' ' : ''}${template.key} -- ${template.subject}`;
         select.appendChild(option);
       });
     }
@@ -1014,7 +1014,7 @@
             ${flag ? `<span class="text-base leading-none">${flag}</span>` : ''}
             ${escapeHtml(template.key)}
           </div>
-          <div class="text-sm text-gray-500 mt-1 text-left">${escapeHtml(template.type)} ¬∑ ${escapeHtml(template.subject)}</div>`;
+          <div class="text-sm text-gray-500 mt-1 text-left">${escapeHtml(template.type)} &middot; ${escapeHtml(template.subject)}</div>`;
         btn.addEventListener('click', () => loadTemplateIntoForm(template));
         container.appendChild(btn);
       });
@@ -1060,7 +1060,7 @@
       } catch (err) { console.error(err); alert(err.message || 'Saving failed'); }
     }
 
-    // ‚îÄ‚îÄ‚îÄ CUSTOMER EDITOR ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- CUSTOMER EDITOR ------------------------------------------------------
 
     function openCustomerEditor(customer = null) {
       editingCustomerOriginalNummer = customer?.loginCode || null;
@@ -1099,7 +1099,7 @@
       } catch (err) { console.error(err); alert(err.message || 'Saving failed'); }
     }
 
-    // ‚îÄ‚îÄ‚îÄ PRODUCT EDITOR ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- PRODUCT EDITOR -------------------------------------------------------
 
     function openProductEditor(product = null, customer = null) {
       editingProductOriginalBarcode = product?.barcode || null;
@@ -1145,7 +1145,7 @@
       } catch (err) { console.error(err); alert(err.message || 'Saving failed'); }
     }
 
-    // ‚îÄ‚îÄ‚îÄ APP STATE ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+    // --- APP STATE ------------------------------------------------------------
 
     function hideAllScreens() {
       document.getElementById('inputScreen').classList.add('hidden-force');
