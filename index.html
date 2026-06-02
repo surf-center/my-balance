@@ -80,15 +80,15 @@
       </div>
     </div>
 
-    <p class="text-xs text-gray-400 mt-4 mb-2 uppercase font-bold text-left">Items</p>
+    <p id="customerItemsLabel" class="text-xs text-gray-400 mt-4 mb-2 uppercase font-bold text-left">Items</p>
     <div id="productContainer" class="space-y-0"></div>
 
     <div id="customerTransactionSection" class="hidden mt-6">
-      <p class="text-xs text-gray-400 mb-2 uppercase font-bold text-left">Transacties</p>
+      <p id="customerTransactionsLabel" class="text-xs text-gray-400 mb-2 uppercase font-bold text-left">Transacties</p>
       <div id="customerTransactionContainer" class="space-y-0"></div>
     </div>
 
-    <button onclick="resetApp()" class="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
+    <button id="customerNewSearchBtn" onclick="resetApp()" class="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
       New Search
     </button>
   </div>
@@ -130,7 +130,6 @@
               </div>
               <p id="adminCustomerEmail" class="text-sm text-gray-500 mt-1 text-left"></p>
               <p id="adminCustomerLoginCode" class="text-sm text-gray-500 mt-1 text-left"></p>
-              <p id="adminCustomerBankInfo" class="text-sm text-gray-400 mt-1 text-left italic"></p>
               <div class="flex flex-wrap gap-3 mt-4">
                 <button onclick="openCustomerDraftModal()" class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase">mail</button>
                 <button onclick="openCustomerEditor(selectedCustomer)" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">Edit customer</button>
@@ -449,6 +448,44 @@
       aankoop:             'Aankoop met tegoed'
     };
 
+    const UI_STRINGS = {
+      NL: {
+        items: 'Items', transactions: 'Transacties', newSearch: 'Nieuw zoeken',
+        reserved: 'gereserveerd', noItems: 'Geen items gevonden.',
+        minPrice: 'Min. prijs', price: 'Prijs',
+        txLabels: { uitbetaling_verzoek: 'Uitbetaling aangevraagd', uitbetaling_gedaan: 'Uitbetaling', aankoop: 'Aankoop met tegoed' }
+      },
+      EN: {
+        items: 'Items', transactions: 'Transactions', newSearch: 'New Search',
+        reserved: 'reserved', noItems: 'No items found.',
+        minPrice: 'Min. price', price: 'Price',
+        txLabels: { uitbetaling_verzoek: 'Payout requested', uitbetaling_gedaan: 'Payout', aankoop: 'Purchase with credit' }
+      },
+      DE: {
+        items: 'Artikel', transactions: 'Transaktionen', newSearch: 'Neue Suche',
+        reserved: 'reserviert', noItems: 'Keine Artikel gefunden.',
+        minPrice: 'Mindestpreis', price: 'Preis',
+        txLabels: { uitbetaling_verzoek: 'Auszahlung beantragt', uitbetaling_gedaan: 'Auszahlung', aankoop: 'Kauf mit Guthaben' }
+      },
+      FR: {
+        items: 'Articles', transactions: 'Transactions', newSearch: 'Nouvelle recherche',
+        reserved: 'r\u00e9serv\u00e9', noItems: 'Aucun article trouv\u00e9.',
+        minPrice: 'Prix min.', price: 'Prix',
+        txLabels: { uitbetaling_verzoek: 'Paiement demand\u00e9', uitbetaling_gedaan: 'Paiement', aankoop: 'Achat avec cr\u00e9dit' }
+      }
+    };
+
+    function t(lang, key) {
+      const l = String(lang || '').toUpperCase().trim();
+      return (UI_STRINGS[l] || UI_STRINGS['EN'])[key] || UI_STRINGS['EN'][key] || key;
+    }
+
+    function txLabel(lang, type) {
+      const l = String(lang || '').toUpperCase().trim();
+      const labels = ((UI_STRINGS[l] || UI_STRINGS['EN']).txLabels) || {};
+      return labels[type] || TRANSACTION_LABELS[type] || type;
+    }
+
     const TRANSACTION_BADGE_CLASS = {
       uitbetaling_verzoek: 'tx-verzoek',
       uitbetaling_gedaan:  'tx-gedaan',
@@ -542,24 +579,38 @@
     // --- CUSTOMER VIEW --------------------------------------------------------
 
     function renderCustomerView(customer) {
+      const lang = String(customer.language || 'EN').toUpperCase().trim();
+      const pending = customer.pendingPayout || 0;
+
+      // Saldo aangepast voor gereserveerd bedrag
+      const disp90 = Math.max(0, (customer.saldo90 || 0) - pending);
+      const disp80 = Math.max(0, (customer.saldo80 || 0) - pending);
+
       document.getElementById('customerName').textContent = customer.name || '';
-      document.getElementById('customerPayout90').textContent = formatEuro(customer.saldo90 || 0);
-      document.getElementById('customerPayout80').textContent = formatEuro(customer.saldo80 || 0);
+      document.getElementById('customerPayout90').textContent = formatEuro(disp90);
+      document.getElementById('customerPayout80').textContent = formatEuro(disp80);
+
       const custPending = document.getElementById('customerPendingPayout');
-      if (customer.pendingPayout > 0) {
-        custPending.textContent = formatEuro(customer.pendingPayout) + ' in behandeling';
+      if (pending > 0) {
+        custPending.textContent = formatEuro(pending) + ' ' + t(lang, 'reserved');
         custPending.classList.remove('hidden');
       } else {
         custPending.classList.add('hidden');
       }
 
+      // Labels vertalen
+      document.getElementById('customerItemsLabel').textContent = t(lang, 'items');
+      document.getElementById('customerTransactionsLabel').textContent = t(lang, 'transactions');
+      document.getElementById('customerNewSearchBtn').textContent = t(lang, 'newSearch');
+
       const container = document.getElementById('productContainer');
       container.innerHTML = '';
 
-      if (!customer.items || !customer.items.length) {
-        container.innerHTML = "<p class='text-gray-400 italic text-left text-sm py-4'>No items found.</p>";
+      const itemList = customer.allItems && customer.allItems.length ? customer.allItems : (customer.items || []);
+      if (!itemList.length) {
+        container.innerHTML = `<p class='text-gray-400 italic text-left text-sm py-4'>${escapeHtml(t(lang, 'noItems'))}</p>`;
       } else {
-        customer.items.forEach(item => {
+        itemList.forEach(item => {
           const el = document.createElement('div');
           el.className = 'py-4 border-b border-gray-100 text-sm';
           let finalLink = item.link;
@@ -576,7 +627,7 @@
                     <span class="font-semibold text-gray-900 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
                     ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
                     <div class="text-xs text-gray-500 mt-2 text-left">
-                      Min. price: ${escapeHtml(formatEuro(item.minPrice))} &nbsp;|&nbsp; Price: ${escapeHtml(formatEuro(item.price))}
+                      ${escapeHtml(t(lang, 'minPrice'))}: ${escapeHtml(formatEuro(item.minPrice))} &nbsp;|&nbsp; ${escapeHtml(t(lang, 'price'))}: ${escapeHtml(formatEuro(item.price))}
                     </div>
                   </div>
                 </div>
@@ -593,7 +644,8 @@
         document.getElementById('customerTransactionSection'),
         document.getElementById('customerTransactionContainer'),
         customer.transactions || [],
-        false
+        false,
+        lang
       );
 
       hideAllScreens();
@@ -602,7 +654,7 @@
 
     // --- SHARED TRANSACTION RENDERER ------------------------------------------
 
-    function renderTransactions(section, container, transactions, isAdmin) {
+    function renderTransactions(section, container, transactions, isAdmin, lang) {
       if (!transactions.length) { section && section.classList.add('hidden'); return; }
       section && section.classList.remove('hidden');
       container.innerHTML = '';
@@ -610,6 +662,7 @@
         const row = document.createElement('div');
         row.className = 'py-3 border-b border-gray-100 text-sm flex items-center justify-between gap-3';
         const badgeClass = TRANSACTION_BADGE_CLASS[tx.type] || '';
+        const label = isAdmin ? (TRANSACTION_LABELS[tx.type] || tx.type) : txLabel(lang, tx.type);
         let right = `<span class="font-bold text-gray-900 whitespace-nowrap">${escapeHtml(formatEuro(tx.bedrag))}</span>`;
         if (isAdmin) {
           right = `
@@ -621,7 +674,7 @@
         row.innerHTML = `
           <div class="flex items-center gap-3 min-w-0">
             <span class="text-gray-400 text-xs whitespace-nowrap">${escapeHtml(formatDate(tx.datum))}</span>
-            <span class="tx-badge ${badgeClass}">${escapeHtml(TRANSACTION_LABELS[tx.type] || tx.type)}</span>
+            <span class="tx-badge ${badgeClass}">${escapeHtml(label)}</span>
             ${tx.notitie ? `<span class="text-gray-400 text-xs truncate">${escapeHtml(tx.notitie)}</span>` : ''}
           </div>
           ${right}`;
@@ -698,8 +751,6 @@
       document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
-      const bankParts = [selectedCustomer.rekeningnaam, selectedCustomer.rekeningnummer, selectedCustomer.bank].filter(Boolean);
-      document.getElementById('adminCustomerBankInfo').textContent = bankParts.length ? `Bank: ${bankParts.join(' ¬∑ ')}` : 'Geen bankgegevens bekend';
       document.getElementById('adminCustomerPayout90').textContent = formatEuro(selectedCustomer.saldo90 || 0);
       document.getElementById('adminCustomerPayout80').textContent = formatEuro(selectedCustomer.saldo80 || 0);
       const adminPending = document.getElementById('adminCustomerPendingPayout');
