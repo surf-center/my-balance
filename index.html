@@ -195,7 +195,14 @@
       </div>
       <div class="mb-4 text-left">
         <label class="block text-sm font-bold text-gray-600 mb-2">Template</label>
-        <select id="templateSelect" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"></select>
+        <select id="templateSelect" onchange="updateDraftPreview()" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"></select>
+      </div>
+      <div id="draftPreview" class="hidden mb-4 text-left">
+        <label class="block text-sm font-bold text-gray-600 mb-2">Preview</label>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2 text-sm">
+          <div><span class="text-gray-400 text-xs uppercase font-bold">Onderwerp</span><p id="draftPreviewSubject" class="text-gray-800 font-semibold mt-1"></p></div>
+          <div><span class="text-gray-400 text-xs uppercase font-bold">Inhoud</span><pre id="draftPreviewBody" class="text-gray-700 mt-1 whitespace-pre-wrap font-sans text-xs max-h-48 overflow-y-auto"></pre></div>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <button onclick="openMailDraft('mailto')" class="py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">Apple draft</button>
@@ -420,7 +427,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0dS8iDR0ZZJp-S8q6utif2oTaS3vW5bRZcoZTuC5lRgKcnzwi7Fs3066iUe5U7TYdpA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxct_rTNZn38ffhp8zMOWPYmqaKYM3Md4M6mTrIm87zcMOtZzQxt0QGACQHFDuRu3JQ/exec';
 
     const PLACEHOLDERS = [
       '{{Name}}', '{{FirstName}}', '{{Email}}',
@@ -916,6 +923,7 @@
         option.textContent = `${flag ? flag + ' ' : ''}${template.key} -- ${template.subject}`;
         select.appendChild(option);
       });
+      updateDraftPreview();
     }
 
     function renderPlaceholderButtons() {
@@ -996,6 +1004,20 @@
         body = body.split(key).join(replacements[key]);
       });
       return { subject, body };
+    }
+
+    function updateDraftPreview() {
+      const templateKey = document.getElementById('templateSelect').value;
+      const preview = document.getElementById('draftPreview');
+      if (!templateKey) { preview.classList.add('hidden'); return; }
+      const template = adminTemplates.find(t => t.key === templateKey);
+      if (!template) { preview.classList.add('hidden'); return; }
+      const product = draftMode === 'product' ? selectedProduct : null;
+      const transaction = draftMode === 'transaction' ? selectedTransaction : null;
+      const merged = mergeTemplateText(template, selectedCustomer, product, transaction);
+      document.getElementById('draftPreviewSubject').textContent = merged.subject || '';
+      document.getElementById('draftPreviewBody').textContent = merged.body || '';
+      preview.classList.remove('hidden');
     }
 
     function openMailDraft(type) {
