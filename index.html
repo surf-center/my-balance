@@ -130,6 +130,7 @@
               </div>
               <p id="adminCustomerEmail" class="text-sm text-gray-500 mt-1 text-left"></p>
               <p id="adminCustomerLoginCode" class="text-sm text-gray-500 mt-1 text-left"></p>
+              <p id="adminCustomerBankInfo" class="text-sm text-gray-400 mt-1 text-left italic"></p>
               <div class="flex flex-wrap gap-3 mt-4">
                 <button onclick="openCustomerDraftModal()" class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase">mail</button>
                 <button onclick="openCustomerEditor(selectedCustomer)" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">Edit customer</button>
@@ -335,6 +336,21 @@
           <input id="customerEmailInput" type="email" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
         </div>
       </div>
+      <p class="text-xs text-gray-400 mt-5 mb-3 uppercase font-bold">Bankgegevens</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-bold text-gray-600 mb-2">Rekeningnaam</label>
+          <input id="customerRekeningnaamInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-600 mb-2">Rekeningnummer</label>
+          <input id="customerRekeningnummerInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-600 mb-2">Bank</label>
+          <input id="customerBankInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
+        </div>
+      </div>
       <div class="flex gap-3 mt-6">
         <button onclick="closeCustomerEditor()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700">Cancel</button>
         <button onclick="saveCustomer()" class="flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-bold text-white">Save customer</button>
@@ -413,6 +429,8 @@
       '{{Product}}', '{{MinPrice}}', '{{Price}}',
       '{{Barcode}}', '{{Link}}', '{{Status}}', '{{SalePrice}}',
       '{{TransactionAmount}}', '{{TransactionDate}}', '{{TransactionNote}}',
+      '{{Rekeningnaam}}', '{{Rekeningnummer}}', '{{Bank}}',
+      '{{BankGegevens}}', '{{BankDetails}}',
       '{{TradeInLink}}'
     ];
 
@@ -420,7 +438,7 @@
 
     const TRANSACTION_LABELS = {
       uitbetaling_verzoek: 'Uitbetaling aangevraagd',
-      uitbetaling_gedaan:  'Uitbetaling ontvangen',
+      uitbetaling_gedaan:  'Uitbetaling',
       aankoop:             'Aankoop met tegoed'
     };
 
@@ -591,7 +609,6 @@
             <div class="flex items-center gap-2 shrink-0">
               <span class="font-bold text-gray-900">${escapeHtml(formatEuro(tx.bedrag))}</span>
               <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
-              <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-del-btn">x</button>
             </div>`;
         }
         row.innerHTML = `
@@ -603,7 +620,6 @@
           ${right}`;
         if (isAdmin) {
           row.querySelector('.tx-mail-btn').addEventListener('click', () => openTransactionDraftModal(tx));
-          row.querySelector('.tx-del-btn').addEventListener('click', () => deleteTransactionRecord(tx));
         }
         container.appendChild(row);
       });
@@ -675,6 +691,8 @@
       document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
+      const bankParts = [selectedCustomer.rekeningnaam, selectedCustomer.rekeningnummer, selectedCustomer.bank].filter(Boolean);
+      document.getElementById('adminCustomerBankInfo').textContent = bankParts.length ? `Bank: ${bankParts.join(' ¬∑ ')}` : 'Geen bankgegevens bekend';
       document.getElementById('adminCustomerPayout90').textContent = formatEuro(selectedCustomer.saldo90 || 0);
       document.getElementById('adminCustomerPayout80').textContent = formatEuro(selectedCustomer.saldo80 || 0);
       const adminPending = document.getElementById('adminCustomerPendingPayout');
@@ -804,11 +822,12 @@
     function renderAdminProducts(customer) {
       const container = document.getElementById('adminProductContainer');
       container.innerHTML = '';
-      if (!customer.items || !customer.items.length) {
+      const productList = customer.allItems && customer.allItems.length ? customer.allItems : (customer.items || []);
+      if (!productList.length) {
         container.innerHTML = `<div class="text-sm text-gray-400 text-left">No products found.</div>`;
         return;
       }
-      customer.items.forEach(item => {
+      productList.forEach(item => {
         const finalLink = item.link && item.link.trim() !== ''
           ? item.link
           : `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
@@ -922,6 +941,26 @@
       textarea.selectionStart = textarea.selectionEnd = start + text.length;
     }
 
+    function buildBankText_(customer, lang) {
+      const naam = customer?.rekeningnaam || '';
+      const nr   = customer?.rekeningnummer || '';
+      const bank = customer?.bank || '';
+      const hasData = naam || nr || bank;
+      if (lang === 'en') {
+        if (hasData) {
+          return `Account name: ${naam}\nAccount number: ${nr}\nBank: ${bank}\n\nAre these details still correct? Please let me know if anything has changed or if you'd like to update the address.`;
+        } else {
+          return `To process your payout, we kindly ask for your bank details:\n\nAccount name:\nAccount number:\nBank:`;
+        }
+      } else {
+        if (hasData) {
+          return `Rekeningnaam: ${naam}\nRekeningnummer: ${nr}\nBank: ${bank}\n\nKloppen deze gegevens nog? Laat het me weten als er iets gewijzigd is of je het adres wilt veranderen.`;
+        } else {
+          return `Om je uit te betalen ontvangen we graag je bankgegevens:\n\nRekeningnaam:\nRekeningnummer:\nBank:`;
+        }
+      }
+    }
+
     function mergeTemplateText(template, customer, product, transaction) {
       const replacements = {
         '{{Name}}': customer?.name || '',
@@ -943,6 +982,11 @@
         '{{TransactionAmount}}': formatEuro(transaction?.bedrag || 0),
         '{{TransactionDate}}': formatDate(transaction?.datum || ''),
         '{{TransactionNote}}': transaction?.notitie || '',
+        '{{Rekeningnaam}}': customer?.rekeningnaam || '',
+        '{{Rekeningnummer}}': customer?.rekeningnummer || '',
+        '{{Bank}}': customer?.bank || '',
+        '{{BankGegevens}}': buildBankText_(customer, 'nl'),
+        '{{BankDetails}}': buildBankText_(customer, 'en'),
         '{{TradeInLink}}': 'https://surf-center.com/en/trade-in'
       };
       let subject = template.subject || '';
@@ -1057,6 +1101,9 @@
       document.getElementById('customerLastNameInput').value = customer?.lastName || '';
       document.getElementById('customerNumberInput').value = customer?.loginCode || '';
       document.getElementById('customerEmailInput').value = customer?.email || '';
+      document.getElementById('customerRekeningnaamInput').value = customer?.rekeningnaam || '';
+      document.getElementById('customerRekeningnummerInput').value = customer?.rekeningnummer || '';
+      document.getElementById('customerBankInput').value = customer?.bank || '';
       document.getElementById('customerEditorModal').classList.remove('hidden');
     }
 
@@ -1071,7 +1118,10 @@
         nummer: document.getElementById('customerNumberInput').value.trim(),
         firstName: document.getElementById('customerFirstNameInput').value.trim(),
         name: document.getElementById('customerLastNameInput').value.trim(),
-        email: document.getElementById('customerEmailInput').value.trim()
+        email: document.getElementById('customerEmailInput').value.trim(),
+        rekeningnaam: document.getElementById('customerRekeningnaamInput').value.trim(),
+        rekeningnummer: document.getElementById('customerRekeningnummerInput').value.trim(),
+        bank: document.getElementById('customerBankInput').value.trim()
       };
       if (!payload.nummer || !payload.firstName || !payload.name) {
         alert('Voornaam, achternaam en nummer zijn verplicht'); return;
