@@ -416,7 +416,7 @@
       '{{TradeInLink}}'
     ];
 
-    const LANGUAGE_FLAGS = { NL: 'üá≥üá±', EN: 'üá¨üáß', FR: 'üá´üá∑', DE: 'üá©üá™', ES: 'üá™üá∏', IT: 'üáÆüáπ' };
+    const LANGUAGE_FLAGS = { NL: '\uD83C\uDDF3\uD83C\uDDF1', EN: '\uD83C\uDDEC\uD83C\uDDE7', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', ES: '\uD83C\uDDEA\uD83C\uDDF8', IT: '\uD83C\uDDEE\uD83C\uDDF9' };
 
     const TRANSACTION_LABELS = {
       uitbetaling_verzoek: 'Uitbetaling aangevraagd',
@@ -450,8 +450,8 @@
 
     function formatEuro(value) {
       const n = parseFloat(String(value || '').replace(',', '.'));
-      if (isNaN(n)) return '‚Ç¨0';
-      return '‚Ç¨' + Math.round(n).toLocaleString('en-GB');
+      if (isNaN(n)) return '\u20AC0';
+      return '\u20AC' + Math.round(n).toLocaleString('en-GB');
     }
 
     function formatDate(dateStr) {
@@ -1171,3 +1171,4 @@
   </script>
 </body>
 </html>
+
