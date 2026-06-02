@@ -29,9 +29,9 @@
     .switch input:checked + .slider { background-color: #22c55e; }
     .switch input:checked + .slider:before { transform: translateX(26px); }
     .tx-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; }
-    .tx-verzoek { background: #fef3c7; color: #92400e; }
-    .tx-gedaan { background: #dcfce7; color: #166534; }
-    .tx-aankoop { background: #e0f2fe; color: #075985; }
+    .tx-verzoek { background: #f3f4f6; color: #111827; }
+    .tx-gedaan { background: #f3f4f6; color: #111827; }
+    .tx-aankoop { background: #f3f4f6; color: #111827; }
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
@@ -340,21 +340,6 @@
         <div>
           <label class="block text-sm font-bold text-gray-600 mb-2">Email</label>
           <input id="customerEmailInput" type="email" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
-        </div>
-      </div>
-      <p class="text-xs text-gray-400 mt-5 mb-3 uppercase font-bold">Bankgegevens</p>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-bold text-gray-600 mb-2">Rekeningnaam</label>
-          <input id="customerRekeningnaamInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-600 mb-2">Rekeningnummer</label>
-          <input id="customerRekeningnummerInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-600 mb-2">Bank</label>
-          <input id="customerBankInput" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left" />
         </div>
       </div>
       <div class="flex gap-3 mt-6">
@@ -754,11 +739,17 @@
       document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
-      document.getElementById('adminCustomerPayout90').textContent = formatEuro(selectedCustomer.saldo90 || 0);
-      document.getElementById('adminCustomerPayout80').textContent = formatEuro(selectedCustomer.saldo80 || 0);
+      const adminNet90 = selectedCustomer.saldo90 || 0;
+      const adminNet80 = selectedCustomer.saldo80 || 0;
+      const adminPendingAmt = selectedCustomer.pendingPayout || 0;
+      const adminRatio8090 = adminNet80 > 0 ? adminNet90 / adminNet80 : 1;
+      const adminDisp90 = Math.max(0, adminNet90 - adminPendingAmt * adminRatio8090);
+      const adminDisp80 = Math.max(0, adminNet80 - adminPendingAmt);
+      document.getElementById('adminCustomerPayout90').textContent = formatEuro(adminDisp90);
+      document.getElementById('adminCustomerPayout80').textContent = formatEuro(adminDisp80);
       const adminPending = document.getElementById('adminCustomerPendingPayout');
-      if (selectedCustomer.pendingPayout > 0) {
-        adminPending.textContent = formatEuro(selectedCustomer.pendingPayout) + ' in behandeling';
+      if (adminPendingAmt > 0) {
+        adminPending.textContent = formatEuro(adminPendingAmt) + ' gereserveerd';
         adminPending.classList.remove('hidden');
       } else {
         adminPending.classList.add('hidden');
@@ -1177,9 +1168,6 @@
       document.getElementById('customerLastNameInput').value = customer?.lastName || '';
       document.getElementById('customerNumberInput').value = customer?.loginCode || '';
       document.getElementById('customerEmailInput').value = customer?.email || '';
-      document.getElementById('customerRekeningnaamInput').value = customer?.rekeningnaam || '';
-      document.getElementById('customerRekeningnummerInput').value = customer?.rekeningnummer || '';
-      document.getElementById('customerBankInput').value = customer?.bank || '';
       document.getElementById('customerEditorModal').classList.remove('hidden');
     }
 
@@ -1195,9 +1183,6 @@
         firstName: document.getElementById('customerFirstNameInput').value.trim(),
         name: document.getElementById('customerLastNameInput').value.trim(),
         email: document.getElementById('customerEmailInput').value.trim(),
-        rekeningnaam: document.getElementById('customerRekeningnaamInput').value.trim(),
-        rekeningnummer: document.getElementById('customerRekeningnummerInput').value.trim(),
-        bank: document.getElementById('customerBankInput').value.trim()
       };
       if (!payload.nummer || !payload.firstName || !payload.name) {
         alert('Voornaam, achternaam en nummer zijn verplicht'); return;
