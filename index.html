@@ -390,7 +390,7 @@
         </div>
       </div>
       <div class="mt-5">
-        <label class="block text-sm font-bold text-gray-600 mb-2">EOL</label>
+        <label class="block text-sm font-bold text-gray-600 mb-2">EOL <span class="font-normal text-gray-400">(item teruggenomen of verwijderd)</span></label>
         <div class="flex items-center gap-3 h-[50px] px-4 rounded-lg border border-gray-300 bg-white w-fit">
           <label class="switch"><input type="checkbox" id="productEolInput"><span class="slider"></span></label>
           <span class="text-sm font-bold text-gray-700">EOL</span>
@@ -404,7 +404,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycU9k_KFnBcjIf1GHGWEiYe21HCrfeE8LokFWAnWjyg6jpBMwWtF5S5nt05GMWtEAGGA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0dS8iDR0ZZJp-S8q6utif2oTaS3vW5bRZcoZTuC5lRgKcnzwi7Fs3066iUe5U7TYdpA/exec';
 
     const PLACEHOLDERS = [
       '{{Name}}', '{{FirstName}}', '{{Email}}',
@@ -416,7 +416,7 @@
       '{{TradeInLink}}'
     ];
 
-    const LANGUAGE_FLAGS = { NL: '\uD83C\uDDF3\uD83C\uDDF1', EN: '\uD83C\uDDEC\uD83C\uDDE7', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', ES: '\uD83C\uDDEA\uD83C\uDDF8', IT: '\uD83C\uDDEE\uD83C\uDDF9' };
+    const LANGUAGE_FLAGS = { NL: 'üá≥üá±', EN: 'üá¨üáß', FR: 'üá´üá∑', DE: 'üá©üá™', ES: 'üá™üá∏', IT: 'üáÆüáπ' };
 
     const TRANSACTION_LABELS = {
       uitbetaling_verzoek: 'Uitbetaling aangevraagd',
@@ -450,8 +450,8 @@
 
     function formatEuro(value) {
       const n = parseFloat(String(value || '').replace(',', '.'));
-      if (isNaN(n)) return '\u20AC0';
-      return '\u20AC' + Math.round(n).toLocaleString('en-GB');
+      if (isNaN(n)) return '‚Ç¨0';
+      return '‚Ç¨' + Math.round(n).toLocaleString('en-GB');
     }
 
     function formatDate(dateStr) {
@@ -564,34 +564,48 @@
         });
       }
 
-      renderCustomerTransactions(customer);
+      renderTransactions(
+        document.getElementById('customerTransactionSection'),
+        document.getElementById('customerTransactionContainer'),
+        customer.transactions || [],
+        false
+      );
 
       hideAllScreens();
       document.getElementById('saldoMessage').classList.remove('hidden');
     }
 
-    function renderCustomerTransactions(customer) {
-      const section = document.getElementById('customerTransactionSection');
-      const container = document.getElementById('customerTransactionContainer');
-      const transactions = customer.transactions || [];
+    // --- SHARED TRANSACTION RENDERER ------------------------------------------
 
-      if (!transactions.length) { section.classList.add('hidden'); return; }
-
-      section.classList.remove('hidden');
+    function renderTransactions(section, container, transactions, isAdmin) {
+      if (!transactions.length) { section && section.classList.add('hidden'); return; }
+      section && section.classList.remove('hidden');
       container.innerHTML = '';
-
       transactions.forEach(tx => {
-        const el = document.createElement('div');
-        el.className = 'py-3 border-b border-gray-100 text-sm flex items-center justify-between gap-3';
+        const row = document.createElement('div');
+        row.className = 'py-3 border-b border-gray-100 text-sm flex items-center justify-between gap-3';
         const badgeClass = TRANSACTION_BADGE_CLASS[tx.type] || '';
-        el.innerHTML = `
+        let right = `<span class="font-bold text-gray-900 whitespace-nowrap">${escapeHtml(formatEuro(tx.bedrag))}</span>`;
+        if (isAdmin) {
+          right = `
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-bold text-gray-900">${escapeHtml(formatEuro(tx.bedrag))}</span>
+              <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
+              <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-del-btn">x</button>
+            </div>`;
+        }
+        row.innerHTML = `
           <div class="flex items-center gap-3 min-w-0">
             <span class="text-gray-400 text-xs whitespace-nowrap">${escapeHtml(formatDate(tx.datum))}</span>
             <span class="tx-badge ${badgeClass}">${escapeHtml(TRANSACTION_LABELS[tx.type] || tx.type)}</span>
             ${tx.notitie ? `<span class="text-gray-400 text-xs truncate">${escapeHtml(tx.notitie)}</span>` : ''}
           </div>
-          <span class="font-bold text-gray-900 whitespace-nowrap">${escapeHtml(formatEuro(tx.bedrag))}</span>`;
-        container.appendChild(el);
+          ${right}`;
+        if (isAdmin) {
+          row.querySelector('.tx-mail-btn').addEventListener('click', () => openTransactionDraftModal(tx));
+          row.querySelector('.tx-del-btn').addEventListener('click', () => deleteTransactionRecord(tx));
+        }
+        container.appendChild(row);
       });
     }
 
@@ -672,7 +686,12 @@
       }
 
       renderAdminProducts(selectedCustomer);
-      renderAdminTransactions(selectedCustomer);
+      renderTransactions(
+        document.getElementById('adminTransactionContainer').parentElement,
+        document.getElementById('adminTransactionContainer'),
+        selectedCustomer.transactions || [],
+        true
+      );
     }
 
     async function refreshSelectedCustomer() {
@@ -744,41 +763,10 @@
       document.getElementById('draftModal').classList.remove('hidden');
     }
 
-    function renderAdminTransactions(customer) {
-      const container = document.getElementById('adminTransactionContainer');
-      container.innerHTML = '';
-      const transactions = customer.transactions || [];
-
-      if (!transactions.length) {
-        container.innerHTML = `<div class="text-sm text-gray-400 text-left py-2">Geen transacties.</div>`;
-        return;
-      }
-
-      transactions.forEach(tx => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-3 py-3 border-b border-gray-100 text-sm';
-        const badgeClass = TRANSACTION_BADGE_CLASS[tx.type] || '';
-        row.innerHTML = `
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-gray-400 text-xs whitespace-nowrap">${escapeHtml(formatDate(tx.datum))}</span>
-            <span class="tx-badge ${badgeClass}">${escapeHtml(TRANSACTION_LABELS[tx.type] || tx.type)}</span>
-            ${tx.notitie ? `<span class="text-gray-400 text-xs truncate">${escapeHtml(tx.notitie)}</span>` : ''}
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="font-bold text-gray-900">${escapeHtml(formatEuro(tx.bedrag))}</span>
-            <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
-            <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-del-btn">x</button>
-          </div>`;
-        row.querySelector('.tx-mail-btn').addEventListener('click', () => openTransactionDraftModal(tx));
-        row.querySelector('.tx-del-btn').addEventListener('click', () => deleteTransactionRecord(tx));
-        container.appendChild(row);
-      });
-    }
-
     // --- PRODUCTS -------------------------------------------------------------
 
     async function toggleStatus(barcode) {
-      const product = selectedCustomer.items.find(p => String(p.barcode || '') === String(barcode || ''));
+      const product = (selectedCustomer.allItems || selectedCustomer.items || []).find(p => String(p.barcode || '') === String(barcode || ''));
       if (!product) return;
       const newStatus = String(product.status || '').toLowerCase() === 'green' ? 'black' : 'green';
       const data = await postData({ action: 'saveProduct', originalBarcode: barcode, customerName: selectedCustomer.name, product: product.product, minPrice: product.minPrice, price: product.price, barcode: product.barcode, link: product.link, status: newStatus, salePrice: product.salePrice, eol: product.eol });
@@ -787,7 +775,7 @@
     }
 
     async function toggleEol(barcode) {
-      const product = selectedCustomer.items.find(p => String(p.barcode || '') === String(barcode || ''));
+      const product = (selectedCustomer.allItems || selectedCustomer.items || []).find(p => String(p.barcode || '') === String(barcode || ''));
       if (!product) return;
       const newEol = String(product.eol || '').toLowerCase() === 'yes' ? 'no' : 'yes';
       const data = await postData({ action: 'saveProduct', originalBarcode: barcode, customerName: selectedCustomer.name, product: product.product, minPrice: product.minPrice, price: product.price, barcode: product.barcode, link: product.link, status: product.status, salePrice: product.salePrice, eol: newEol });
