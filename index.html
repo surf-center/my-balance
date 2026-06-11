@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-    #loginCode { background-color: transparent !important; text-align: center; }
+    #loginCode { background-color: white !important; text-align: center; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
     #loginCode:focus { box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.45); }
     .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -16,7 +16,7 @@
     .status-dot { width: 10px; height: 10px; min-width: 10px; border-radius: 9999px; display: inline-block; margin-top: 4px; }
     .status-green { background-color: #22c55e; }
     .status-black { background-color: #111827; }
-    .article-number { font-size: 11px; line-height: 1.2; color: #9ca3af; margin-top: 4px; font-weight: 500; }
+    .article-number { font-size: 11px; line-height: 1.2; color: #9ca3af; margin-top: 1px; font-weight: 500; }
     .modal-backdrop { background: rgba(0,0,0,0.5); }
     .hidden-force { display: none !important; }
     textarea { resize: vertical; }
@@ -34,12 +34,12 @@
     .tx-aankoop  { background: #fff7ed; color: #c2410c; }
     /* sold stack & collapsible */
     .sold-stack-wrapper { position: relative; padding-bottom: 6px; }
-    .sold-stack-card-bg2 { position: absolute; bottom: 0; left: 6px; right: 6px; height: 100%; background: #e5e7eb; border-radius: 12px; }
-    .sold-stack-card-bg1 { position: absolute; bottom: 3px; left: 3px; right: 3px; height: 100%; background: #f3f4f6; border-radius: 12px; }
-    .sold-stack-top { position: relative; cursor: pointer; background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px 20px; transition: border-radius 0.15s; }
-    .sold-stack-top.open { border-radius: 12px 12px 0 0; border-bottom-color: transparent; }
-    .sold-items-list { border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; }
-    .sold-stack-top:hover { background: #f9fafb; }
+    .sold-stack-card-bg2 { position: absolute; bottom: 0; left: 6px; right: 6px; height: 100%; background: rgba(0,0,0,0.06); border-radius: 14px; }
+    .sold-stack-card-bg1 { position: absolute; bottom: 3px; left: 3px; right: 3px; height: 100%; background: rgba(0,0,0,0.03); border-radius: 14px; }
+    .sold-stack-top { position: relative; cursor: pointer; background: white; border: none; border-radius: 14px; padding: 18px 20px; transition: border-radius 0.15s; box-shadow: 0 4px 10px -2px rgba(0,0,0,0.08); }
+    .sold-stack-top.open { border-radius: 14px 14px 0 0; box-shadow: 0 4px 10px -2px rgba(0,0,0,0.08); }
+    .sold-items-list { border: none; border-radius: 0 0 14px 14px; background: white; box-shadow: 0 6px 10px -2px rgba(0,0,0,0.08); clip-path: inset(0px -20px -20px -20px); }
+    .sold-stack-top:hover { background: #fafafa; }
     .sold-chevron { transition: transform 0.2s; }
     .sold-chevron.open { transform: rotate(180deg); }
     .sold-items-list { overflow: hidden; }
@@ -56,15 +56,15 @@
     .bank-tx-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
     .bank-tx-detail { overflow: hidden; flex: 1; min-width: 0; }
     .bank-tx-expand { background: #fafafa; padding: 12px 16px 14px 16px; border-top: 1px solid #f0f0f0; }
-    .bank-tx-amount-pos { color: #16a34a; font-weight: 400; font-size: 15px; white-space: nowrap; }
-    .bank-tx-amount-neg { color: #111827; font-weight: 400; font-size: 15px; white-space: nowrap; }
+    .bank-tx-amount-pos { color: #16a34a; font-weight: 400; font-size: 14px; white-space: nowrap; }
+    .bank-tx-amount-neg { color: #111827; font-weight: 400; font-size: 14px; white-space: nowrap; }
+    .bank-tx-amount-neutral { color: #6b7280; font-weight: 400; font-size: 14px; white-space: nowrap; }
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
 
   <header class="text-center mb-8">
     <h1 class="text-3xl font-extrabold text-gray-800">My Balance</h1>
-    <p class="text-gray-500 mt-1">Check your consignment status</p>
   </header>
 
   <div id="errorMessage" class="hidden w-full max-w-md mx-auto p-3 mb-4 text-sm text-red-800 rounded-lg bg-red-100 text-left" role="alert">
@@ -72,28 +72,26 @@
   </div>
 
   <!-- LOGIN SCREEN -->
-  <div id="inputScreen" class="front-card w-full max-w-md mx-auto p-6 bg-black rounded-xl shadow-2xl hover:shadow-gray-700/50 transition-all">
-    <div class="text-center flex justify-center">
-      <img src="https://i.postimg.cc/8zK9B9HC/logo.png" alt="Logo" class="block mx-auto w-full max-w-[240px] mb-2 object-contain">
+  <div id="inputScreen" class="front-card w-full max-w-md mx-auto bg-black rounded-2xl shadow-2xl overflow-hidden transition-all">
+    <div class="flex flex-col items-center px-8 pt-10 pb-8">
+      <img src="https://i.postimg.cc/8zK9B9HC/logo.png" alt="Logo" class="w-full max-w-[200px] object-contain mb-3">
+      <p class="text-white/40 text-sm tracking-wide">Check your consignment status</p>
     </div>
-    <div class="flex-grow flex items-center justify-center py-4">
-      <input type="text" id="loginCode" placeholder="Login"
-        class="w-full p-4 text-center text-lg font-bold text-white rounded-lg border-2 border-white/50 placeholder-white/70 focus:outline-none"
+    <div class="px-6 pb-10">
+      <input type="text" id="loginCode" placeholder="Login code"
+        class="w-full px-4 py-4 text-center text-lg font-bold text-gray-900 bg-white rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
         autofocus onkeyup="checkEnter(event)">
+      <div id="loadingState" class="hidden flex items-center justify-center pt-4 text-white/70 text-sm">
+        <div class="spinner mr-3"></div>Loading...
+      </div>
     </div>
-    <div id="loadingState" class="hidden flex items-center justify-center py-3 text-white">
-      <div class="spinner mr-3"></div>Loading...
-    </div>
-    <button onclick="login()" class="mt-2 w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">
-      View Status
-    </button>
   </div>
 
   <!-- CUSTOMER VIEW -->
   <div id="saldoMessage" class="hidden w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-2xl transition-all">
-    <div class="flex justify-between items-start pb-4 border-b border-gray-200 gap-4">
+    <div class="flex justify-between items-start pb-4 border-b border-gray-200 gap-4 pt-2">
       <div class="min-w-0 pr-4 text-left">
-        <span id="customerName" class="text-xl font-bold text-gray-800 truncate text-left block"></span>
+        <span id="customerName" class="text-2xl font-extrabold text-gray-900 truncate text-left block"></span>
       </div>
       <div class="text-right flex-shrink-0">
         <div class="flex items-center justify-end gap-2">
@@ -106,12 +104,11 @@
       </div>
     </div>
 
-    <p id="customerItemsLabel" class="text-xs text-gray-900 mt-6 mb-2 uppercase font-bold text-left tracking-wide">Items</p>
+    <div class="mt-3"></div>
     <div id="productContainer" class="space-y-0"></div>
 
     <div id="customerTransactionSection" class="hidden">
-      <hr class="my-6 border-gray-100">
-      <div id="customerTransactionContainer"></div>
+      <div class="mt-4" id="customerTransactionContainer"></div>
     </div>
 
     <button id="customerNewSearchBtn" onclick="resetApp()" class="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
@@ -591,7 +588,7 @@
       const showBg = count > 1;
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'sold-stack-wrapper mt-4';
+      wrapper.className = 'sold-stack-wrapper mt-8';
 
       if (showBg) {
         const bg2 = document.createElement('div');
@@ -746,7 +743,7 @@
       const purchased = txList.filter(tx => tx.type === 'aankoop').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
       const pending   = customer.pendingPayout || 0;
 
-      const fracUsed = (gross80 > 0 ? paidOut / gross80 : 0) + (gross90 > 0 ? purchased / gross90 : 0);
+      const fracUsed = (gross80 > 0 ? (paidOut + pending) / gross80 : 0) + (gross90 > 0 ? purchased / gross90 : 0);
       const remaining = Math.max(0, 1 - fracUsed);
 
       const disp80 = Math.round(gross80 * remaining * 100) / 100;
@@ -764,7 +761,6 @@
         custPending.classList.add('hidden');
       }
 
-      document.getElementById('customerItemsLabel').textContent = t(lang, 'items');
       document.getElementById('customerNewSearchBtn').textContent = t(lang, 'newSearch');
 
       const container = document.getElementById('productContainer');
@@ -777,47 +773,41 @@
       if (!itemList.length) {
         container.innerHTML = `<p class='text-gray-400 italic text-left text-sm py-4'>${escapeHtml(t(lang, 'noItems'))}</p>`;
       } else {
-        unsoldItems.forEach(item => {
+        unsoldItems.forEach((item, idx) => {
           const el = document.createElement('div');
-          el.className = 'py-4 border-b border-gray-100 text-sm';
+          const isLast = idx === unsoldItems.length - 1;
+          el.className = `py-4 text-sm${isLast && !soldItems.length ? '' : ' border-b border-gray-200'}`;
           let finalLink = item.link;
           if (!finalLink || finalLink.trim() === '') {
             finalLink = `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
           }
+          const hasRealLink = item.link && item.link.trim() !== '';
           const dotClass = 'status-black';
           el.innerHTML = `
-            <div class="grid grid-cols-[1fr_auto] gap-4 items-start">
-              <a href="${escapeHtml(finalLink)}" target="_blank" class="min-w-0 text-left block">
-                <div class="flex items-start gap-3">
-                  <span class="status-dot ${dotClass}"></span>
-                  <div class="min-w-0">
-                    <span class="font-semibold text-gray-900 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
-                    ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
-                    <div class="text-xs text-gray-400 mt-1 text-left">
-                      ${item.minPrice && item.price && item.minPrice !== item.price
-                        ? `${escapeHtml(formatEuro(item.minPrice))} \u2013 ${escapeHtml(formatEuro(item.price))}`
-                        : item.price ? escapeHtml(formatEuro(item.price)) : ''}
-                    </div>
-                  </div>
+            <div class="flex items-center gap-3">
+              <span class="status-dot ${dotClass} shrink-0" style="margin-top:0"></span>
+              <div class="flex-1 min-w-0 text-left">
+                <span class="font-semibold text-gray-900 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
+                ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
+                <div style="font-size:12px;font-weight:400;color:#9ca3af;margin-top:1px;text-align:left">
+                  ${item.minPrice && item.price
+                    ? `${escapeHtml(formatEuro(item.minPrice))} \u2013 ${escapeHtml(formatEuro(item.price))}`
+                    : item.minPrice ? escapeHtml(formatEuro(item.minPrice))
+                    : item.price ? escapeHtml(formatEuro(item.price)) : ''}
                 </div>
-              </a>
-              <div class="font-bold text-gray-900 text-right whitespace-nowrap leading-tight">
-                ${(parseFloat(item.salePrice) || 0) > 0 ? escapeHtml(formatEuro(item.salePrice)) : ''}
               </div>
+              ${hasRealLink ? `<a href="${escapeHtml(item.link)}" target="_blank" class="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition text-gray-500" title="Bekijk advertentie"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>` : ''}
             </div>`;
           container.appendChild(el);
         });
 
-        if (soldItems.length) {
-          const stack = buildSoldStackCustomer(soldItems, lang);
-          if (stack) container.appendChild(stack);
-        }
       }
 
       renderCustomerLedger(
         document.getElementById('customerTransactionSection'),
         document.getElementById('customerTransactionContainer'),
         soldItems,
+        unsoldItems,
         customer.transactions || [],
         lang
       );
@@ -867,113 +857,106 @@
       expand.appendChild(totRow);
     }
 
-    function renderCustomerLedger(section, container, soldItems, transactions, lang) {
+    function toggleStackSection(btn) {
+      const header = btn.closest('.combo-section-header');
+      const list = header.nextElementSibling;
+      const chev = header.querySelector('.sold-chevron');
+      const isOpen = !list.classList.contains('hidden');
+      list.classList.toggle('hidden', isOpen);
+      if (chev) chev.classList.toggle('open', !isOpen);
+    }
+
+    function renderCustomerLedger(section, container, soldItems, unsoldItems, transactions, lang) {
       const creditItems = soldItems.filter(i => (parseFloat(i.salePrice) || 0) > 0);
       section.classList.remove('hidden');
       container.innerHTML = '';
 
-      // -- Section label ------------------------------------------------------
-      const sectionLabel = document.createElement('p');
-      sectionLabel.className = 'text-xs text-gray-900 uppercase font-bold mb-3';
-      sectionLabel.textContent = t(lang, 'transactions');
-      container.appendChild(sectionLabel);
-
-      // -- Stack wrapper (same style as sold items) ---------------------------
+      const hasSold = soldItems.length > 0;
       const hasGedaan = transactions.some(tx => tx.type === 'uitbetaling_gedaan');
       const visibleTx = transactions.filter(tx => !(tx.type === 'uitbetaling_verzoek' && hasGedaan));
+      const txCount = visibleTx.length;
+      const hasAankoop     = visibleTx.some(tx => tx.type === 'aankoop');
+      const hasUitbetaling = visibleTx.some(tx => tx.type === 'uitbetaling_gedaan');
+      const hasContent = hasSold || txCount > 0;
 
-      const stackWrapper = document.createElement('div');
-      stackWrapper.className = 'sold-stack-wrapper';
+      // Header dots: green for sold, red for aankoop
+      const headerDots = [
+        hasSold ? '<span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;flex-shrink:0"></span>' : '',
+        hasAankoop ? '<span style="width:8px;height:8px;border-radius:50%;background:#dc2626;display:inline-block;flex-shrink:0"></span>' : '',
+        (!hasSold && !hasAankoop) ? '<span style="width:8px;height:8px;border-radius:50%;background:#d1d5db;display:inline-block;flex-shrink:0"></span>' : ''
+      ].join('');
 
-      if (visibleTx.length > 1) {
-        const bg2 = document.createElement('div'); bg2.className = 'sold-stack-card-bg2'; stackWrapper.appendChild(bg2);
-        const bg1 = document.createElement('div'); bg1.className = 'sold-stack-card-bg1'; stackWrapper.appendChild(bg1);
-      }
+      const soldCount = soldItems.length;
+      const parts = [];
+      if (soldCount > 0) parts.push(soldCount + ' ' + t(lang, 'soldLabel'));
+      if (txCount > 0) parts.push(txCount + ' ' + (txCount === 1 ? (lang === 'NL' ? 'transactie' : 'transaction') : (lang === 'NL' ? 'transacties' : 'transactions')));
+      if (parts.length === 0) parts.push(lang === 'NL' ? 'Geen geschiedenis' : 'No history');
+      const headerLabel = parts.join(' \u00B7 ');
 
-      const top = document.createElement('div');
-      top.className = 'sold-stack-top';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'sold-stack-wrapper mt-8';
+      const bg2 = document.createElement('div'); bg2.className = 'sold-stack-card-bg2'; wrapper.appendChild(bg2);
+      const bg1 = document.createElement('div'); bg1.className = 'sold-stack-card-bg1'; wrapper.appendChild(bg1);
 
-      const count = visibleTx.length;
-      const countLabel = count === 0
-        ? (lang === 'NL' ? 'Nog geen transacties' : 'No transactions yet')
-        : count === 1
-          ? `1 ${lang === 'NL' ? 'transactie' : 'transaction'}`
-          : `${count} ${lang === 'NL' ? 'transacties' : 'transactions'}`;
+      const inner = document.createElement('div');
+      inner.style.cssText = 'position:relative;background:white;border-radius:14px;overflow:hidden;box-shadow:0 4px 10px -2px rgba(0,0,0,0.08)';
 
-      top.innerHTML = `
-        <button class="w-full flex items-center justify-between gap-3" ${count > 0 ? 'onclick="toggleSoldStack(this)"' : ''}>
-          <div class="flex items-center gap-2">
-            <span style="width:8px;height:8px;border-radius:50%;background:#111827;flex-shrink:0;display:inline-block"></span>
-            <span class="text-sm font-bold text-gray-700">${escapeHtml(countLabel)}</span>
-          </div>
-          ${count > 0 ? `<svg class="sold-chevron w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>` : ''}
-        </button>`;
-      stackWrapper.appendChild(top);
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;' + (hasContent ? 'cursor:pointer;' : '');
+      header.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:5px">' + headerDots + '</span><span style="font-size:14px;font-weight:700;color:#374151">' + escapeHtml(headerLabel) + '</span></div>' + (hasContent ? '<svg class="sold-chevron w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>' : '');
+      inner.appendChild(header);
 
-      // -- Transaction rows (hidden by default) ------------------------------
-      const card = document.createElement('div');
-      card.className = 'sold-items-list hidden overflow-hidden';
-      if (count === 0) { container.appendChild(stackWrapper); return; }
+      if (hasContent) {
+        const content = document.createElement('div');
+        content.className = 'hidden';
+        content.style.cssText = 'border-top:1px solid #f3f4f6;';
 
-      const TX_ICONS = {
-        uitbetaling_gedaan:   { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>', bg: '#dcfce7', color: '#16a34a' },
-        uitbetaling_verzoek:  { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', bg: '#f3f4f6', color: '#6b7280' },
-        aankoop:              { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', bg: '#fee2e2', color: '#dc2626' },
-      };
-
-      const totalSp = creditItems.reduce((s, i) => s + (parseFloat(i.salePrice) || 0), 0);
-
-      visibleTx.forEach(tx => {
-        const meta = TX_ICONS[tx.type] || { icon: '\u2022', bg: '#f9fafb', color: '#6b7280' };
-        const isCredit = tx.type === 'uitbetaling_gedaan';
-        const isDebit  = tx.type === 'aankoop';
-        const amountClass = isCredit ? 'bank-tx-amount-pos' : isDebit ? 'bank-tx-amount-neg' : '';
-        const amountPrefix = isCredit ? '+' : isDebit ? '\u2212' : '';
-
-        let pct = null;
-        if (tx.type === 'uitbetaling_gedaan') pct = detectPayoutPct(parseFloat(tx.bedrag) || 0, totalSp);
-
-        const label = txLabel(lang, tx.type);
-        const hasExpand = false;
-
-        const wrapper = document.createElement('div');
-
-        const row = document.createElement('div');
-        row.className = 'bank-tx-row';
-        row.innerHTML = `
-          <div class="bank-tx-icon" style="background:${meta.bg};color:${meta.color}">
-            ${meta.icon.startsWith('<svg') ? meta.icon : `<span style="font-weight:700;font-size:15px">${meta.icon}</span>`}
-          </div>
-          <div class="bank-tx-detail">
-            <span class="text-sm font-semibold text-gray-800 truncate block">${escapeHtml(label)}</span>
-            <div class="text-xs text-gray-400 mt-0.5">${tx.datum ? escapeHtml(formatDate(tx.datum)) : ''}${tx.notitie ? (tx.datum ? ' \u00B7 ' : '') + escapeHtml(tx.notitie) : ''}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="${amountClass}">${amountPrefix}${escapeHtml(formatEuro(tx.bedrag))}</span>
-            ${hasExpand ? `<svg class="bank-tx-chev w-3.5 h-3.5 text-gray-300 transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>` : ''}
-          </div>`;
-
-        const expand = document.createElement('div');
-        expand.className = 'bank-tx-expand hidden';
-
-        if (hasExpand) {
-          buildCreditBreakdown(expand, creditItems, pct, lang, tx.type);
-          row.style.cursor = 'pointer';
-          row.addEventListener('click', () => {
-            const open = !expand.classList.contains('hidden');
-            expand.classList.toggle('hidden', open);
-            const chev = row.querySelector('.bank-tx-chev');
-            if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+        if (hasSold) {
+          soldItems.forEach(function(item) {
+            const sp = parseFloat(item.salePrice) || 0;
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #f9fafb;';
+            row.innerHTML = '<span class="status-dot status-green" style="margin-top:0;flex-shrink:0"></span><div style="flex:1;min-width:0"><span style="font-size:14px;font-weight:600;color:#1f2937;display:block">' + escapeHtml(item.product || '') + '</span>' + (item.barcode ? '<span class="article-number">SKU: ' + escapeHtml(item.barcode) + '</span>' : '') + '</div><span style="font-size:14px;font-weight:400;color:#6b7280;white-space:nowrap">' + (sp > 0 ? escapeHtml(formatEuro(sp)) : '') + '</span>';
+            content.appendChild(row);
           });
         }
 
-        wrapper.appendChild(row);
-        wrapper.appendChild(expand);
-        card.appendChild(wrapper);
-      });
+        if (hasSold && txCount > 0) {
+          const sep = document.createElement('div');
+          sep.style.cssText = 'height:1px;background:#e5e7eb;margin:4px 20px;';
+          content.appendChild(sep);
+        }
 
-      stackWrapper.appendChild(card);
-      container.appendChild(stackWrapper);
+        if (txCount > 0) {
+          const TX_DOT = {
+            uitbetaling_gedaan:  '#16a34a',
+            uitbetaling_verzoek: '#111827',
+            aankoop:             '#dc2626',
+          };
+          visibleTx.forEach(function(tx) {
+            const dotColor = TX_DOT[tx.type] || '#9ca3af';
+            const isCredit = tx.type === 'uitbetaling_gedaan';
+            const isDebit  = tx.type === 'aankoop';
+            const amountColor = isCredit ? '#16a34a' : '#6b7280';
+            const amountPrefix = isCredit ? '+' : isDebit ? '\u2212' : '';
+            const row = document.createElement('div');
+            row.className = 'bank-tx-row';
+            row.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;margin-top:2px"></span><div class="bank-tx-detail"><span style="font-size:14px;font-weight:600;color:#1f2937;display:block">' + escapeHtml(txLabel(lang, tx.type)) + '</span><div style="font-size:12px;color:#9ca3af;margin-top:1px">' + (tx.datum ? escapeHtml(formatDate(tx.datum)) : '') + (tx.notitie ? (tx.datum ? ' \u00B7 ' : '') + escapeHtml(tx.notitie) : '') + '</div></div><span style="font-size:14px;font-weight:400;color:' + amountColor + ';white-space:nowrap">' + amountPrefix + escapeHtml(formatEuro(tx.bedrag)) + '</span>';
+            content.appendChild(row);
+          });
+        }
+
+        inner.appendChild(content);
+        header.addEventListener('click', function() {
+          const open = !content.classList.contains('hidden');
+          content.classList.toggle('hidden', open);
+          const chev = header.querySelector('.sold-chevron');
+          if (chev) chev.classList.toggle('open', !open);
+        });
+      }
+
+      wrapper.appendChild(inner);
+      container.appendChild(wrapper);
     }
 
     // --- SHARED TRANSACTION RENDERER ------------------------------------------
