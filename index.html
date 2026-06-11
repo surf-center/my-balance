@@ -29,9 +29,35 @@
     .switch input:checked + .slider { background-color: #22c55e; }
     .switch input:checked + .slider:before { transform: translateX(26px); }
     .tx-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700; }
-    .tx-verzoek { background: #f3f4f6; color: #111827; }
-    .tx-gedaan { background: #f3f4f6; color: #111827; }
-    .tx-aankoop { background: #f3f4f6; color: #111827; }
+    .tx-verzoek  { background: #f3f4f6; color: #6b7280; }
+    .tx-gedaan   { background: #dcfce7; color: #15803d; }
+    .tx-aankoop  { background: #fff7ed; color: #c2410c; }
+    /* sold stack & collapsible */
+    .sold-stack-wrapper { position: relative; padding-bottom: 6px; }
+    .sold-stack-card-bg2 { position: absolute; bottom: 0; left: 6px; right: 6px; height: 100%; background: #e5e7eb; border-radius: 12px; }
+    .sold-stack-card-bg1 { position: absolute; bottom: 3px; left: 3px; right: 3px; height: 100%; background: #f3f4f6; border-radius: 12px; }
+    .sold-stack-top { position: relative; cursor: pointer; background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px 20px; transition: border-radius 0.15s; }
+    .sold-stack-top.open { border-radius: 12px 12px 0 0; border-bottom-color: transparent; }
+    .sold-items-list { border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; }
+    .sold-stack-top:hover { background: #f9fafb; }
+    .sold-chevron { transition: transform 0.2s; }
+    .sold-chevron.open { transform: rotate(180deg); }
+    .sold-items-list { overflow: hidden; }
+    .tx-ledger-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: transparent; border: none; cursor: pointer; padding: 0; }
+    .tx-ledger-chevron { transition: transform 0.2s; flex-shrink: 0; }
+    .tx-ledger-chevron.open { transform: rotate(180deg); }
+    .ledger-plus { color: #15803d; font-weight: 700; }
+    .ledger-minus { color: #374151; font-weight: 700; }
+    /* Banking-style transaction row */
+    .bank-tx-card { background: white; border-radius: 16px; border: 1px solid #f0f0f0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); overflow: hidden; }
+    .bank-tx-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f4f4f5; }
+    .bank-tx-row:last-child { border-bottom: none; }
+    .bank-tx-row:hover { background: #fafafa; }
+    .bank-tx-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+    .bank-tx-detail { overflow: hidden; flex: 1; min-width: 0; }
+    .bank-tx-expand { background: #fafafa; padding: 12px 16px 14px 16px; border-top: 1px solid #f0f0f0; }
+    .bank-tx-amount-pos { color: #16a34a; font-weight: 400; font-size: 15px; white-space: nowrap; }
+    .bank-tx-amount-neg { color: #111827; font-weight: 400; font-size: 15px; white-space: nowrap; }
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
@@ -69,7 +95,7 @@
       <div class="min-w-0 pr-4 text-left">
         <span id="customerName" class="text-xl font-bold text-gray-800 truncate text-left block"></span>
       </div>
-      <div class="text-right">
+      <div class="text-right flex-shrink-0">
         <div class="flex items-center justify-end gap-2">
           <a href="https://surf-center.com/en/trade-in" target="_blank"
             class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200">i</a>
@@ -80,12 +106,12 @@
       </div>
     </div>
 
-    <p id="customerItemsLabel" class="text-xs text-gray-400 mt-4 mb-2 uppercase font-bold text-left">Items</p>
+    <p id="customerItemsLabel" class="text-xs text-gray-900 mt-6 mb-2 uppercase font-bold text-left tracking-wide">Items</p>
     <div id="productContainer" class="space-y-0"></div>
 
-    <div id="customerTransactionSection" class="hidden mt-6">
-      <p id="customerTransactionsLabel" class="text-xs text-gray-400 mb-2 uppercase font-bold text-left">Transacties</p>
-      <div id="customerTransactionContainer" class="space-y-0"></div>
+    <div id="customerTransactionSection" class="hidden">
+      <hr class="my-6 border-gray-100">
+      <div id="customerTransactionContainer"></div>
     </div>
 
     <button id="customerNewSearchBtn" onclick="resetApp()" class="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
@@ -102,17 +128,17 @@
             <h2 class="text-2xl font-extrabold text-gray-800">Admin</h2>
             <p class="text-sm text-gray-500">Overview</p>
           </div>
-          <button onclick="resetApp()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold text-sm whitespace-nowrap">Logout</button>
+          <button onclick="resetApp()" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center" title="Logout">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/></svg>
+          </button>
         </div>
-        <div class="flex gap-2 mb-3">
+        <div class="flex flex-col gap-2 mb-4">
           <input id="adminSearch" type="text" placeholder="Search"
             class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-left"
             oninput="filterAdminCustomers()" />
-          <button onclick="openTemplateManager()" class="px-4 py-3 bg-black hover:bg-gray-800 text-white rounded-lg font-bold text-sm whitespace-nowrap">Templates</button>
+          <button onclick="openTemplateManager()" class="w-full px-4 py-3 bg-black hover:bg-gray-800 text-white rounded-lg font-bold text-left">Templates</button>
+          <button onclick="openCustomerEditor()" class="w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold text-left">+ Add customer</button>
         </div>
-        <button onclick="openCustomerEditor()" class="mb-4 w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold text-left">
-          + Add customer
-        </button>
         <div id="adminCustomerList" class="space-y-2 max-h-[560px] overflow-y-auto"></div>
       </div>
 
@@ -411,21 +437,20 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxct_rTNZn38ffhp8zMOWPYmqaKYM3Md4M6mTrIm87zcMOtZzQxt0QGACQHFDuRu3JQ/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3KuxYbL3kT21OUBWFVZskEGfyL3el4n6IbC_i8vvmPo6t2lEoZqZkd_eMJRxF6zxYwA/exec';
 
     const PLACEHOLDERS = [
       '{{Name}}', '{{FirstName}}', '{{Email}}',
-      '{{Saldo}}', '{{Saldo90}}', '{{Saldo80}}',
-      '{{Payout90}}', '{{Payout80}}', '{{LoginCode}}',
-      '{{Product}}', '{{MinPrice}}', '{{Price}}',
-      '{{Barcode}}', '{{Link}}', '{{Status}}', '{{SalePrice}}',
+      '{{TotaalVerkoopwaarde}}', '{{Saldo90}}', '{{Saldo80}}',
+      '{{LoginCode}}',
+      '{{Product}}', '{{Price}}',
+      '{{Barcode}}', '{{Link}}', '{{SalePrice}}',
       '{{TransactionAmount}}', '{{TransactionDate}}', '{{TransactionNote}}',
-      '{{Rekeningnaam}}', '{{Rekeningnummer}}', '{{Bank}}',
-      '{{BankGegevens}}', '{{BankDetails}}',
-      '{{TradeInLink}}'
+      '{{Rekeningnaam}}', '{{Rekeningnummer}}',
+      '{{TradeInLink}}', '{{ActiveItems}}'
     ];
 
-    const LANGUAGE_FLAGS = { NL: '\uD83C\uDDF3\uD83C\uDDF1', EN: '\uD83C\uDDEC\uD83C\uDDE7', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', ES: '\uD83C\uDDEA\uD83C\uDDF8', IT: '\uD83C\uDDEE\uD83C\uDDF9' };
+    const LANGUAGE_FLAGS = { NL: 'üá≥üá±', EN: 'üá¨üáß', FR: 'üá´üá∑', DE: 'üá©üá™', ES: 'üá™üá∏', IT: 'üáÆüáπ' };
 
     const TRANSACTION_LABELS = {
       uitbetaling_verzoek: 'Uitbetaling aangevraagd',
@@ -435,28 +460,32 @@
 
     const UI_STRINGS = {
       NL: {
-        items: 'Items', transactions: 'Transacties', newSearch: 'Nieuw zoeken',
+        items: 'Items', transactions: 'My Balance', newSearch: 'Nieuw zoeken',
         reserved: 'gereserveerd', noItems: 'Geen items gevonden.',
         minPrice: 'Min. prijs', price: 'Prijs',
+        soldLabel: 'verkocht', creditFrom: 'Tegoed opgebouwd door:',
         txLabels: { uitbetaling_verzoek: 'Uitbetaling aangevraagd', uitbetaling_gedaan: 'Uitbetaling', aankoop: 'Aankoop met tegoed' }
       },
       EN: {
-        items: 'Items', transactions: 'Transactions', newSearch: 'New Search',
+        items: 'Items', transactions: 'My Balance', newSearch: 'New Search',
         reserved: 'reserved', noItems: 'No items found.',
         minPrice: 'Min. price', price: 'Price',
+        soldLabel: 'sold', creditFrom: 'Credit from:',
         txLabels: { uitbetaling_verzoek: 'Payout requested', uitbetaling_gedaan: 'Payout', aankoop: 'Purchase with credit' }
       },
       DE: {
-        items: 'Artikel', transactions: 'Transaktionen', newSearch: 'Neue Suche',
+        items: 'Artikel', transactions: 'My Balance', newSearch: 'Neue Suche',
         reserved: 'reserviert', noItems: 'Keine Artikel gefunden.',
         minPrice: 'Mindestpreis', price: 'Preis',
+        soldLabel: 'verkauft', creditFrom: 'Guthaben aus:',
         txLabels: { uitbetaling_verzoek: 'Auszahlung beantragt', uitbetaling_gedaan: 'Auszahlung', aankoop: 'Kauf mit Guthaben' }
       },
       FR: {
-        items: 'Articles', transactions: 'Transactions', newSearch: 'Nouvelle recherche',
-        reserved: 'r\u00e9serv\u00e9', noItems: 'Aucun article trouv\u00e9.',
+        items: 'Articles', transactions: 'My Balance', newSearch: 'Nouvelle recherche',
+        reserved: 'r√©serv√©', noItems: 'Aucun article trouv√©.',
         minPrice: 'Prix min.', price: 'Prix',
-        txLabels: { uitbetaling_verzoek: 'Paiement demand\u00e9', uitbetaling_gedaan: 'Paiement', aankoop: 'Achat avec cr\u00e9dit' }
+        soldLabel: 'vendu(s)', creditFrom: 'Cr√©dit issu de :',
+        txLabels: { uitbetaling_verzoek: 'Paiement demand√©', uitbetaling_gedaan: 'Paiement', aankoop: 'Achat avec cr√©dit' }
       }
     };
 
@@ -497,8 +526,8 @@
 
     function formatEuro(value) {
       const n = parseFloat(String(value || '').replace(',', '.'));
-      if (isNaN(n)) return '\u20AC0';
-      return '\u20AC' + Math.round(n).toLocaleString('en-GB');
+      if (isNaN(n)) return '‚Ç¨0';
+      return '‚Ç¨' + Math.round(n).toLocaleString('en-GB');
     }
 
     function formatDate(dateStr) {
@@ -537,6 +566,145 @@
       return await parseResponse(response);
     }
 
+    // --- SOLD STACK TOGGLE ----------------------------------------------------
+
+    function toggleSoldStack(btn) {
+      const wrapper = btn.closest('.sold-stack-wrapper');
+      const list = wrapper.querySelector('.sold-items-list');
+      const chevron = btn.querySelector('.sold-chevron');
+      const isOpen = !list.classList.contains('hidden');
+      list.classList.toggle('hidden', isOpen);
+      chevron.classList.toggle('open', !isOpen);
+      btn.closest('.sold-stack-top').classList.toggle('open', !isOpen);
+      // hide/show bg shadow cards
+      wrapper.querySelectorAll('.sold-stack-card-bg1, .sold-stack-card-bg2').forEach(el => {
+        el.style.display = isOpen ? '' : 'none';
+      });
+    }
+
+    // --- SOLD STACK BUILDER ---------------------------------------------------
+
+    function buildSoldStackCustomer(soldItems, lang) {
+      if (!soldItems.length) return null;
+
+      const count = soldItems.length;
+      const showBg = count > 1;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'sold-stack-wrapper mt-4';
+
+      if (showBg) {
+        const bg2 = document.createElement('div');
+        bg2.className = 'sold-stack-card-bg2';
+        const bg1 = document.createElement('div');
+        bg1.className = 'sold-stack-card-bg1';
+        wrapper.appendChild(bg2);
+        wrapper.appendChild(bg1);
+      }
+
+      const top = document.createElement('div');
+      top.className = 'sold-stack-top';
+      top.innerHTML = `
+        <button class="w-full flex items-center justify-between gap-3" onclick="toggleSoldStack(this)">
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-green" style="margin-top:0"></span>
+            <span class="text-sm font-bold text-gray-700">${count} ${escapeHtml(t(lang, 'soldLabel'))}</span>
+          </div>
+          <svg class="sold-chevron w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>`;
+      wrapper.appendChild(top);
+
+      const list = document.createElement('div');
+      list.className = 'sold-items-list hidden overflow-hidden';
+      soldItems.forEach(item => {
+        const sp = parseFloat(item.salePrice) || 0;
+        const row = document.createElement('div');
+        row.className = 'py-3 px-4 border-b border-gray-100 last:border-b-0 bg-white text-sm';
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="status-dot status-green shrink-0" style="margin-top:0"></span>
+            <div class="flex-1 min-w-0">
+              <span class="font-semibold text-gray-700 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
+              ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-gray-600">${escapeHtml(formatEuro(sp))}</div>
+            </div>
+          </div>`;
+        list.appendChild(row);
+      });
+      wrapper.appendChild(list);
+      return wrapper;
+    }
+
+    function buildSoldStackAdmin(soldItems, customer) {
+      if (!soldItems.length) return null;
+
+      const totalSale = soldItems.reduce((s, i) => s + (parseFloat(i.salePrice) || 0), 0);
+      const count = soldItems.length;
+      const showBg = count > 1;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'sold-stack-wrapper mt-2';
+
+      if (showBg) {
+        const bg2 = document.createElement('div');
+        bg2.className = 'sold-stack-card-bg2';
+        const bg1 = document.createElement('div');
+        bg1.className = 'sold-stack-card-bg1';
+        wrapper.appendChild(bg2);
+        wrapper.appendChild(bg1);
+      }
+
+      const top = document.createElement('div');
+      top.className = 'sold-stack-top';
+      top.innerHTML = `
+        <button class="w-full flex items-center justify-between gap-3" onclick="toggleSoldStack(this)">
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-green" style="margin-top:0"></span>
+            <span class="text-sm font-bold text-gray-700">${count} verkocht</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-bold text-gray-900">${escapeHtml(formatEuro(totalSale))}</span>
+            <svg class="sold-chevron w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </button>`;
+      wrapper.appendChild(top);
+
+      const list = document.createElement('div');
+      list.className = 'sold-items-list hidden mt-2 space-y-2';
+      soldItems.forEach(item => {
+        const finalLink = item.link && item.link.trim() !== ''
+          ? item.link
+          : `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
+        const card = document.createElement('div');
+        card.className = 'border border-gray-200 rounded-xl p-4 bg-gray-50';
+        card.innerHTML = `
+          <div class="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-4 items-start">
+            <div class="min-w-0 text-left">
+              <a href="${escapeHtml(finalLink)}" target="_blank" class="font-bold text-gray-700 hover:underline block text-left leading-tight">${escapeHtml(item.product || '')}</a>
+              ${item.barcode ? `<div class="article-number block">SKU: ${escapeHtml(item.barcode)}</div>` : ''}
+              <div class="mt-3 text-sm text-gray-500 leading-6 text-left">
+                Min. price: <strong>${escapeHtml(formatEuro(item.minPrice))}</strong> &nbsp;|&nbsp;
+                Price: <strong>${escapeHtml(formatEuro(item.price))}</strong> &nbsp;|&nbsp;
+                Sale price: <strong>${escapeHtml(formatEuro(item.salePrice))}</strong>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-3">
+              <div class="flex flex-wrap justify-end gap-3">
+                <button class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase admin-product-mail-btn">mail</button>
+                <button class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition admin-product-edit-btn">Edit</button>
+              </div>
+            </div>
+          </div>`;
+        card.querySelector('.admin-product-mail-btn').addEventListener('click', () => openProductDraftModal(item));
+        card.querySelector('.admin-product-edit-btn').addEventListener('click', () => openProductEditor(item, customer));
+        list.appendChild(card);
+      });
+      wrapper.appendChild(list);
+      return wrapper;
+    }
+
     // --- LOGIN ----------------------------------------------------------------
 
     async function login() {
@@ -565,14 +733,24 @@
 
     function renderCustomerView(customer) {
       const lang = String(customer.language || 'EN').toUpperCase().trim();
-      const pending = customer.pendingPayout || 0;
+      const txList = customer.transactions || [];
 
-      // Saldo aangepast voor gereserveerd bedrag (proportioneel, zelfde formule als backend)
-      const net90 = customer.saldo90 || 0;
-      const net80 = customer.saldo80 || 0;
-      const ratio8090 = net80 > 0 ? net90 / net80 : 1;
-      const disp90 = Math.max(0, net90 - pending * ratio8090);
-      const disp80 = Math.max(0, net80 - pending);
+      // Gross saldo from sales
+      const gross90 = customer.saldo90 || 0;
+      const gross80 = customer.saldo80 || 0;
+      const ratio8090 = gross80 > 0 ? gross90 / gross80 : 1;
+
+      // Already paid/used
+      // One pool, two rates. Compute fraction consumed by each transaction type.
+      const paidOut   = txList.filter(tx => tx.type === 'uitbetaling_gedaan').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
+      const purchased = txList.filter(tx => tx.type === 'aankoop').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
+      const pending   = customer.pendingPayout || 0;
+
+      const fracUsed = (gross80 > 0 ? paidOut / gross80 : 0) + (gross90 > 0 ? purchased / gross90 : 0);
+      const remaining = Math.max(0, 1 - fracUsed);
+
+      const disp80 = Math.round(gross80 * remaining * 100) / 100;
+      const disp90 = Math.round(gross90 * remaining * 100) / 100;
 
       document.getElementById('customerName').textContent = customer.name || '';
       document.getElementById('customerPayout90').textContent = formatEuro(disp90);
@@ -586,26 +764,27 @@
         custPending.classList.add('hidden');
       }
 
-      // Labels vertalen
       document.getElementById('customerItemsLabel').textContent = t(lang, 'items');
-      document.getElementById('customerTransactionsLabel').textContent = t(lang, 'transactions');
       document.getElementById('customerNewSearchBtn').textContent = t(lang, 'newSearch');
 
       const container = document.getElementById('productContainer');
       container.innerHTML = '';
 
       const itemList = customer.allItems && customer.allItems.length ? customer.allItems : (customer.items || []);
+      const soldItems   = itemList.filter(i => (parseFloat(i.salePrice) || 0) > 0);
+      const unsoldItems = itemList.filter(i => (parseFloat(i.salePrice) || 0) === 0 && String(i.eol || '').toLowerCase() !== 'yes');
+
       if (!itemList.length) {
         container.innerHTML = `<p class='text-gray-400 italic text-left text-sm py-4'>${escapeHtml(t(lang, 'noItems'))}</p>`;
       } else {
-        itemList.forEach(item => {
+        unsoldItems.forEach(item => {
           const el = document.createElement('div');
           el.className = 'py-4 border-b border-gray-100 text-sm';
           let finalLink = item.link;
           if (!finalLink || finalLink.trim() === '') {
             finalLink = `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
           }
-          const dotClass = String(item.status || '').toLowerCase() === 'green' ? 'status-green' : 'status-black';
+          const dotClass = 'status-black';
           el.innerHTML = `
             <div class="grid grid-cols-[1fr_auto] gap-4 items-start">
               <a href="${escapeHtml(finalLink)}" target="_blank" class="min-w-0 text-left block">
@@ -614,30 +793,187 @@
                   <div class="min-w-0">
                     <span class="font-semibold text-gray-900 block leading-tight text-left">${escapeHtml(item.product || '')}</span>
                     ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
-                    <div class="text-xs text-gray-500 mt-2 text-left">
-                      ${escapeHtml(t(lang, 'minPrice'))}: ${escapeHtml(formatEuro(item.minPrice))} &nbsp;|&nbsp; ${escapeHtml(t(lang, 'price'))}: ${escapeHtml(formatEuro(item.price))}
+                    <div class="text-xs text-gray-400 mt-1 text-left">
+                      ${item.minPrice && item.price && item.minPrice !== item.price
+                        ? `${escapeHtml(formatEuro(item.minPrice))} ‚Äì ${escapeHtml(formatEuro(item.price))}`
+                        : item.price ? escapeHtml(formatEuro(item.price)) : ''}
                     </div>
                   </div>
                 </div>
               </a>
-              <div class="font-bold text-gray-900 text-right whitespace-nowrap min-w-[96px] leading-tight">
-                ${escapeHtml(formatEuro(item.salePrice))}
+              <div class="font-bold text-gray-900 text-right whitespace-nowrap leading-tight">
+                ${(parseFloat(item.salePrice) || 0) > 0 ? escapeHtml(formatEuro(item.salePrice)) : ''}
               </div>
             </div>`;
           container.appendChild(el);
         });
+
+        if (soldItems.length) {
+          const stack = buildSoldStackCustomer(soldItems, lang);
+          if (stack) container.appendChild(stack);
+        }
       }
 
-      renderTransactions(
+      renderCustomerLedger(
         document.getElementById('customerTransactionSection'),
         document.getElementById('customerTransactionContainer'),
+        soldItems,
         customer.transactions || [],
-        false,
         lang
       );
 
       hideAllScreens();
       document.getElementById('saldoMessage').classList.remove('hidden');
+    }
+
+    // --- CUSTOMER LEDGER (collapsible, +/- view) ------------------------------
+
+    // Detect which payout percentage was used based on amount vs total sale prices.
+    // Returns 80 or 90. For aankoop always 90.
+    function detectPayoutPct(bedrag, totalSp) {
+      if (totalSp <= 0) return 80;
+      const diff90 = Math.abs(bedrag - totalSp * 0.9);
+      const diff80 = Math.abs(bedrag - totalSp * 0.8);
+      return diff90 <= diff80 ? 90 : 80;
+    }
+
+    function buildCreditBreakdown(expand, creditItems, pct, lang, txType) {
+      const factor = pct / 100;
+      const color = (txType === 'uitbetaling_gedaan' && pct === 90) ? 'text-green-700' : txType === 'uitbetaling_gedaan' ? 'text-gray-600' : 'text-gray-800';
+
+
+      creditItems.forEach(item => {
+        const sp = parseFloat(item.salePrice) || 0;
+        const iRow = document.createElement('div');
+        iRow.className = 'flex items-start justify-between gap-3 py-1.5 border-b border-gray-100 last:border-b-0';
+        iRow.innerHTML = `
+          <span class="text-xs text-gray-700 font-medium text-left flex-1 min-w-0">${escapeHtml(item.product || '')}</span>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-xs text-gray-400">${pct}%</span>
+            <span class="text-xs font-bold ${color} w-16 text-right">${escapeHtml(formatEuro(sp * factor))}</span>
+          </div>`;
+        expand.appendChild(iRow);
+      });
+
+      const totalSp = creditItems.reduce((s, i) => s + (parseFloat(i.salePrice) || 0), 0);
+      const totRow = document.createElement('div');
+      totRow.className = 'flex items-center justify-between gap-2 pt-2 mt-1 border-t border-gray-100';
+      totRow.innerHTML = `
+        <span class="text-xs font-bold text-gray-700">Totaal</span>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="text-xs text-gray-400">${pct}%</span>
+          <span class="text-xs font-bold ${color} w-16 text-right">${escapeHtml(formatEuro(totalSp * factor))}</span>
+        </div>`;
+      expand.appendChild(totRow);
+    }
+
+    function renderCustomerLedger(section, container, soldItems, transactions, lang) {
+      const creditItems = soldItems.filter(i => (parseFloat(i.salePrice) || 0) > 0);
+      section.classList.remove('hidden');
+      container.innerHTML = '';
+
+      // ‚îÄ‚îÄ Section label ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      const sectionLabel = document.createElement('p');
+      sectionLabel.className = 'text-xs text-gray-900 uppercase font-bold mb-3';
+      sectionLabel.textContent = t(lang, 'transactions');
+      container.appendChild(sectionLabel);
+
+      // ‚îÄ‚îÄ Stack wrapper (same style as sold items) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      const hasGedaan = transactions.some(tx => tx.type === 'uitbetaling_gedaan');
+      const visibleTx = transactions.filter(tx => !(tx.type === 'uitbetaling_verzoek' && hasGedaan));
+
+      const stackWrapper = document.createElement('div');
+      stackWrapper.className = 'sold-stack-wrapper';
+
+      if (visibleTx.length > 1) {
+        const bg2 = document.createElement('div'); bg2.className = 'sold-stack-card-bg2'; stackWrapper.appendChild(bg2);
+        const bg1 = document.createElement('div'); bg1.className = 'sold-stack-card-bg1'; stackWrapper.appendChild(bg1);
+      }
+
+      const top = document.createElement('div');
+      top.className = 'sold-stack-top';
+
+      const count = visibleTx.length;
+      const countLabel = count === 0
+        ? (lang === 'NL' ? 'Nog geen transacties' : 'No transactions yet')
+        : count === 1
+          ? `1 ${lang === 'NL' ? 'transactie' : 'transaction'}`
+          : `${count} ${lang === 'NL' ? 'transacties' : 'transactions'}`;
+
+      top.innerHTML = `
+        <button class="w-full flex items-center justify-between gap-3" ${count > 0 ? 'onclick="toggleSoldStack(this)"' : ''}>
+          <div class="flex items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#111827;flex-shrink:0;display:inline-block"></span>
+            <span class="text-sm font-bold text-gray-700">${escapeHtml(countLabel)}</span>
+          </div>
+          ${count > 0 ? `<svg class="sold-chevron w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>` : ''}
+        </button>`;
+      stackWrapper.appendChild(top);
+
+      // ‚îÄ‚îÄ Transaction rows (hidden by default) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      const card = document.createElement('div');
+      card.className = 'sold-items-list hidden overflow-hidden';
+      if (count === 0) { container.appendChild(stackWrapper); return; }
+
+      const TX_ICONS = {
+        uitbetaling_gedaan:   { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>', bg: '#dcfce7', color: '#16a34a' },
+        uitbetaling_verzoek:  { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', bg: '#f3f4f6', color: '#6b7280' },
+        aankoop:              { icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', bg: '#fee2e2', color: '#dc2626' },
+      };
+
+      const totalSp = creditItems.reduce((s, i) => s + (parseFloat(i.salePrice) || 0), 0);
+
+      visibleTx.forEach(tx => {
+        const meta = TX_ICONS[tx.type] || { icon: '‚Ä¢', bg: '#f9fafb', color: '#6b7280' };
+        const isCredit = tx.type === 'uitbetaling_gedaan';
+        const isDebit  = tx.type === 'aankoop';
+        const amountClass = isCredit ? 'bank-tx-amount-pos' : isDebit ? 'bank-tx-amount-neg' : '';
+        const amountPrefix = isCredit ? '+' : isDebit ? '‚àí' : '';
+
+        let pct = null;
+        if (tx.type === 'uitbetaling_gedaan') pct = detectPayoutPct(parseFloat(tx.bedrag) || 0, totalSp);
+
+        const label = txLabel(lang, tx.type);
+        const hasExpand = false;
+
+        const wrapper = document.createElement('div');
+
+        const row = document.createElement('div');
+        row.className = 'bank-tx-row';
+        row.innerHTML = `
+          <div class="bank-tx-icon" style="background:${meta.bg};color:${meta.color}">
+            ${meta.icon.startsWith('<svg') ? meta.icon : `<span style="font-weight:700;font-size:15px">${meta.icon}</span>`}
+          </div>
+          <div class="bank-tx-detail">
+            <span class="text-sm font-semibold text-gray-800 truncate block">${escapeHtml(label)}</span>
+            <div class="text-xs text-gray-400 mt-0.5">${tx.datum ? escapeHtml(formatDate(tx.datum)) : ''}${tx.notitie ? (tx.datum ? ' ¬∑ ' : '') + escapeHtml(tx.notitie) : ''}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="${amountClass}">${amountPrefix}${escapeHtml(formatEuro(tx.bedrag))}</span>
+            ${hasExpand ? `<svg class="bank-tx-chev w-3.5 h-3.5 text-gray-300 transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>` : ''}
+          </div>`;
+
+        const expand = document.createElement('div');
+        expand.className = 'bank-tx-expand hidden';
+
+        if (hasExpand) {
+          buildCreditBreakdown(expand, creditItems, pct, lang, tx.type);
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', () => {
+            const open = !expand.classList.contains('hidden');
+            expand.classList.toggle('hidden', open);
+            const chev = row.querySelector('.bank-tx-chev');
+            if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+          });
+        }
+
+        wrapper.appendChild(row);
+        wrapper.appendChild(expand);
+        card.appendChild(wrapper);
+      });
+
+      stackWrapper.appendChild(card);
+      container.appendChild(stackWrapper);
     }
 
     // --- SHARED TRANSACTION RENDERER ------------------------------------------
@@ -649,25 +985,39 @@
       transactions.forEach(tx => {
         const row = document.createElement('div');
         row.className = 'py-3 border-b border-gray-100 text-sm flex items-center justify-between gap-3';
-        const badgeClass = TRANSACTION_BADGE_CLASS[tx.type] || '';
         const label = isAdmin ? (TRANSACTION_LABELS[tx.type] || tx.type) : txLabel(lang, tx.type);
-        let right = `<span class="font-bold text-gray-900 whitespace-nowrap">${escapeHtml(formatEuro(tx.bedrag))}</span>`;
+        const TX_ICONS_ADMIN = {
+          uitbetaling_gedaan:  { icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>', bg: '#dcfce7', color: '#16a34a' },
+          uitbetaling_verzoek: { icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', bg: '#f3f4f6', color: '#6b7280' },
+          aankoop:             { icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', bg: '#fee2e2', color: '#dc2626' },
+        };
+        const txMeta = TX_ICONS_ADMIN[tx.type] || { icon: '‚Ä¢', bg: '#f3f4f6', color: '#6b7280' };
+        const isCredit = tx.type === 'uitbetaling_gedaan';
+        const isDebit  = tx.type === 'aankoop';
+        const amountColor = isCredit ? 'color:#16a34a' : isDebit ? 'color:#111827' : 'color:#6b7280';
+        let right = `<span class="whitespace-nowrap text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '‚àí' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>`;
         if (isAdmin) {
           right = `
             <div class="flex items-center gap-2 shrink-0">
-              <span class="font-bold text-gray-900">${escapeHtml(formatEuro(tx.bedrag))}</span>
+              <span class="text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '‚àí' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>
               <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
+              <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-delete-btn">&times;</button>
             </div>`;
         }
         row.innerHTML = `
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-gray-400 text-xs whitespace-nowrap">${escapeHtml(formatDate(tx.datum))}</span>
-            <span class="tx-badge ${badgeClass}">${escapeHtml(label)}</span>
-            ${tx.notitie ? `<span class="text-gray-400 text-xs truncate">${escapeHtml(tx.notitie)}</span>` : ''}
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div style="width:28px;height:28px;border-radius:50%;background:${txMeta.bg};color:${txMeta.color};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${txMeta.icon.startsWith('<svg') ? txMeta.icon : `<span style="font-size:12px;font-weight:700">${txMeta.icon}</span>`}
+            </div>
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-gray-800">${escapeHtml(label)}</span>
+              <div class="text-xs text-gray-400">${escapeHtml(formatDate(tx.datum))}${tx.notitie ? ' ¬∑ ' + escapeHtml(tx.notitie) : ''}</div>
+            </div>
           </div>
           ${right}`;
         if (isAdmin) {
           row.querySelector('.tx-mail-btn').addEventListener('click', () => openTransactionDraftModal(tx));
+          row.querySelector('.tx-delete-btn').addEventListener('click', () => deleteTransactionRecord(tx));
         }
         container.appendChild(row);
       });
@@ -739,12 +1089,18 @@
       document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
+
       const adminNet90 = selectedCustomer.saldo90 || 0;
       const adminNet80 = selectedCustomer.saldo80 || 0;
-      const adminPendingAmt = selectedCustomer.pendingPayout || 0;
       const adminRatio8090 = adminNet80 > 0 ? adminNet90 / adminNet80 : 1;
-      const adminDisp90 = Math.max(0, adminNet90 - adminPendingAmt * adminRatio8090);
-      const adminDisp80 = Math.max(0, adminNet80 - adminPendingAmt);
+      const adminTxList = selectedCustomer.transactions || [];
+      const adminPaidOut   = adminTxList.filter(tx => tx.type === 'uitbetaling_gedaan').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
+      const adminPurchased = adminTxList.filter(tx => tx.type === 'aankoop').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
+      const adminPendingAmt = selectedCustomer.pendingPayout || 0;
+      const adminFracUsed = (adminNet80 > 0 ? adminPaidOut / adminNet80 : 0) + (adminNet90 > 0 ? adminPurchased / adminNet90 : 0);
+      const adminRemaining = Math.max(0, 1 - adminFracUsed);
+      const adminDisp90 = Math.round(adminNet90 * adminRemaining * 100) / 100;
+      const adminDisp80 = Math.round(adminNet80 * adminRemaining * 100) / 100;
       document.getElementById('adminCustomerPayout90').textContent = formatEuro(adminDisp90);
       document.getElementById('adminCustomerPayout80').textContent = formatEuro(adminDisp80);
       const adminPending = document.getElementById('adminCustomerPendingPayout');
@@ -879,7 +1235,11 @@
         container.innerHTML = `<div class="text-sm text-gray-400 text-left">No products found.</div>`;
         return;
       }
-      productList.forEach(item => {
+
+      const unsoldItems = productList.filter(i => String(i.status || '').toLowerCase() !== 'green');
+      const soldItems   = productList.filter(i => String(i.status || '').toLowerCase() === 'green');
+
+      unsoldItems.forEach(item => {
         const finalLink = item.link && item.link.trim() !== ''
           ? item.link
           : `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
@@ -901,16 +1261,17 @@
                 <button class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase admin-product-mail-btn">mail</button>
                 <button class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition admin-product-edit-btn">Edit</button>
               </div>
-              <div class="flex flex-col items-end">
-                ${renderStatusToggle(item)}
-                ${renderEolToggle(item)}
-              </div>
             </div>
           </div>`;
         card.querySelector('.admin-product-mail-btn').addEventListener('click', () => openProductDraftModal(item));
         card.querySelector('.admin-product-edit-btn').addEventListener('click', () => openProductEditor(item, customer));
         container.appendChild(card);
       });
+
+      if (soldItems.length) {
+        const stack = buildSoldStackAdmin(soldItems, customer);
+        if (stack) container.appendChild(stack);
+      }
     }
 
     // --- TEMPLATES ------------------------------------------------------------
@@ -1015,32 +1376,34 @@
     }
 
     function mergeTemplateText(template, customer, product, transaction) {
+      const activeItems = (customer?.items || [])
+        .filter(i => (parseFloat(i.salePrice) || 0) === 0 && String(i.eol || '').toLowerCase() !== 'yes')
+        .map((i, idx) => {
+          const price = i.price ? ` ‚Äì ${formatEuro(i.price)}` : '';
+          const link = i.link ? ` ‚Äì ${i.link}` : '';
+          return `${idx + 1}. ${i.product || ''}${price}${link}`;
+        })
+        .join('\n');
       const replacements = {
         '{{Name}}': customer?.name || '',
         '{{FirstName}}': customer?.firstName || '',
         '{{Email}}': customer?.email || '',
-        '{{Saldo}}': formatEuro(customer?.saldo || 0),
+        '{{TotaalVerkoopwaarde}}': formatEuro(customer?.saldo || 0),
         '{{Saldo90}}': formatEuro(customer?.saldo90 || 0),
         '{{Saldo80}}': formatEuro(customer?.saldo80 || 0),
-        '{{Payout90}}': formatEuro(customer?.saldo90 || 0),
-        '{{Payout80}}': formatEuro(customer?.saldo80 || 0),
         '{{LoginCode}}': customer?.loginCode || '',
         '{{Product}}': product?.product || '',
-        '{{MinPrice}}': formatEuro(product?.minPrice || 0),
         '{{Price}}': formatEuro(product?.price || 0),
         '{{Barcode}}': product?.barcode || '',
         '{{Link}}': product?.link || '',
-        '{{Status}}': String(product?.status || ''),
         '{{SalePrice}}': formatEuro(product?.salePrice || 0),
         '{{TransactionAmount}}': formatEuro(transaction?.bedrag || 0),
         '{{TransactionDate}}': formatDate(transaction?.datum || ''),
         '{{TransactionNote}}': transaction?.notitie || '',
         '{{Rekeningnaam}}': customer?.rekeningnaam || '',
         '{{Rekeningnummer}}': customer?.rekeningnummer || '',
-        '{{Bank}}': customer?.bank || '',
-        '{{BankGegevens}}': buildBankText_(customer, 'nl'),
-        '{{BankDetails}}': buildBankText_(customer, 'en'),
-        '{{TradeInLink}}': 'https://surf-center.com/en/trade-in'
+        '{{TradeInLink}}': 'https://surf-center.com/en/trade-in',
+        '{{ActiveItems}}': activeItems || '(geen actieve items)'
       };
       let subject = template.subject || '';
       let body = template.body || '';
@@ -1239,7 +1602,6 @@
         if (data.success) {
           closeProductEditor();
           await refreshSelectedCustomer();
-          alert('Product saved');
         } else { alert(data.error || 'Saving failed'); }
       } catch (err) { console.error(err); alert(err.message || 'Saving failed'); }
     }
