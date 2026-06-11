@@ -142,7 +142,7 @@
         <div id="adminCustomerList" class="space-y-2 max-h-[560px] overflow-y-auto"></div>
       </div>
 
-      <div class="p-6">
+      <div class="p-6 min-w-0 overflow-hidden">
         <div id="adminEmptyState" class="h-full flex items-center justify-center text-left text-gray-400">
           <p class="mt-2 text-sm">Click a name on the left to view email and products.</p>
         </div>
@@ -450,7 +450,7 @@
       '{{TradeInLink}}', '{{ActiveItems}}'
     ];
 
-    const LANGUAGE_FLAGS = { NL: 'üá≥üá±', EN: 'üá¨üáß', FR: 'üá´üá∑', DE: 'üá©üá™', ES: 'üá™üá∏', IT: 'üáÆüáπ' };
+    const LANGUAGE_FLAGS = { NL: '\uD83C\uDDF3\uD83C\uDDF1', EN: '\uD83C\uDDEC\uD83C\uDDE7', FR: '\uD83C\uDDEB\uD83C\uDDF7', DE: '\uD83C\uDDE9\uD83C\uDDEA', ES: '\uD83C\uDDEA\uD83C\uDDF8', IT: '\uD83C\uDDEE\uD83C\uDDF9' };
 
     const TRANSACTION_LABELS = {
       uitbetaling_verzoek: 'Uitbetaling aangevraagd',
@@ -482,10 +482,10 @@
       },
       FR: {
         items: 'Articles', transactions: 'My Balance', newSearch: 'Nouvelle recherche',
-        reserved: 'r√©serv√©', noItems: 'Aucun article trouv√©.',
+        reserved: 'r\u00E9serv\u00E9', noItems: 'Aucun article trouv\u00E9.',
         minPrice: 'Prix min.', price: 'Prix',
-        soldLabel: 'vendu(s)', creditFrom: 'Cr√©dit issu de :',
-        txLabels: { uitbetaling_verzoek: 'Paiement demand√©', uitbetaling_gedaan: 'Paiement', aankoop: 'Achat avec cr√©dit' }
+        soldLabel: 'vendu(s)', creditFrom: 'Cr\u00E9dit issu de :',
+        txLabels: { uitbetaling_verzoek: 'Paiement demand\u00E9', uitbetaling_gedaan: 'Paiement', aankoop: 'Achat avec cr\u00E9dit' }
       }
     };
 
@@ -526,8 +526,8 @@
 
     function formatEuro(value) {
       const n = parseFloat(String(value || '').replace(',', '.'));
-      if (isNaN(n)) return '‚Ç¨0';
-      return '‚Ç¨' + Math.round(n).toLocaleString('en-GB');
+      if (isNaN(n)) return '\u20AC0';
+      return '\u20AC' + Math.round(n).toLocaleString('en-GB');
     }
 
     function formatDate(dateStr) {
@@ -795,7 +795,7 @@
                     ${item.barcode ? `<span class="article-number block">SKU: ${escapeHtml(item.barcode)}</span>` : ''}
                     <div class="text-xs text-gray-400 mt-1 text-left">
                       ${item.minPrice && item.price && item.minPrice !== item.price
-                        ? `${escapeHtml(formatEuro(item.minPrice))} ‚Äì ${escapeHtml(formatEuro(item.price))}`
+                        ? `${escapeHtml(formatEuro(item.minPrice))} \u2013 ${escapeHtml(formatEuro(item.price))}`
                         : item.price ? escapeHtml(formatEuro(item.price)) : ''}
                     </div>
                   </div>
@@ -872,13 +872,13 @@
       section.classList.remove('hidden');
       container.innerHTML = '';
 
-      // ‚îÄ‚îÄ Section label ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      // -- Section label ------------------------------------------------------
       const sectionLabel = document.createElement('p');
       sectionLabel.className = 'text-xs text-gray-900 uppercase font-bold mb-3';
       sectionLabel.textContent = t(lang, 'transactions');
       container.appendChild(sectionLabel);
 
-      // ‚îÄ‚îÄ Stack wrapper (same style as sold items) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      // -- Stack wrapper (same style as sold items) ---------------------------
       const hasGedaan = transactions.some(tx => tx.type === 'uitbetaling_gedaan');
       const visibleTx = transactions.filter(tx => !(tx.type === 'uitbetaling_verzoek' && hasGedaan));
 
@@ -910,7 +910,7 @@
         </button>`;
       stackWrapper.appendChild(top);
 
-      // ‚îÄ‚îÄ Transaction rows (hidden by default) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+      // -- Transaction rows (hidden by default) ------------------------------
       const card = document.createElement('div');
       card.className = 'sold-items-list hidden overflow-hidden';
       if (count === 0) { container.appendChild(stackWrapper); return; }
@@ -924,11 +924,11 @@
       const totalSp = creditItems.reduce((s, i) => s + (parseFloat(i.salePrice) || 0), 0);
 
       visibleTx.forEach(tx => {
-        const meta = TX_ICONS[tx.type] || { icon: '‚Ä¢', bg: '#f9fafb', color: '#6b7280' };
+        const meta = TX_ICONS[tx.type] || { icon: '\u2022', bg: '#f9fafb', color: '#6b7280' };
         const isCredit = tx.type === 'uitbetaling_gedaan';
         const isDebit  = tx.type === 'aankoop';
         const amountClass = isCredit ? 'bank-tx-amount-pos' : isDebit ? 'bank-tx-amount-neg' : '';
-        const amountPrefix = isCredit ? '+' : isDebit ? '‚àí' : '';
+        const amountPrefix = isCredit ? '+' : isDebit ? '\u2212' : '';
 
         let pct = null;
         if (tx.type === 'uitbetaling_gedaan') pct = detectPayoutPct(parseFloat(tx.bedrag) || 0, totalSp);
@@ -946,7 +946,7 @@
           </div>
           <div class="bank-tx-detail">
             <span class="text-sm font-semibold text-gray-800 truncate block">${escapeHtml(label)}</span>
-            <div class="text-xs text-gray-400 mt-0.5">${tx.datum ? escapeHtml(formatDate(tx.datum)) : ''}${tx.notitie ? (tx.datum ? ' ¬∑ ' : '') + escapeHtml(tx.notitie) : ''}</div>
+            <div class="text-xs text-gray-400 mt-0.5">${tx.datum ? escapeHtml(formatDate(tx.datum)) : ''}${tx.notitie ? (tx.datum ? ' \u00B7 ' : '') + escapeHtml(tx.notitie) : ''}</div>
           </div>
           <div class="flex items-center gap-2">
             <span class="${amountClass}">${amountPrefix}${escapeHtml(formatEuro(tx.bedrag))}</span>
@@ -991,15 +991,15 @@
           uitbetaling_verzoek: { icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', bg: '#f3f4f6', color: '#6b7280' },
           aankoop:             { icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', bg: '#fee2e2', color: '#dc2626' },
         };
-        const txMeta = TX_ICONS_ADMIN[tx.type] || { icon: '‚Ä¢', bg: '#f3f4f6', color: '#6b7280' };
+        const txMeta = TX_ICONS_ADMIN[tx.type] || { icon: '\u2022', bg: '#f3f4f6', color: '#6b7280' };
         const isCredit = tx.type === 'uitbetaling_gedaan';
         const isDebit  = tx.type === 'aankoop';
         const amountColor = isCredit ? 'color:#16a34a' : isDebit ? 'color:#111827' : 'color:#6b7280';
-        let right = `<span class="whitespace-nowrap text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '‚àí' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>`;
+        let right = `<span class="whitespace-nowrap text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '\u2212' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>`;
         if (isAdmin) {
           right = `
             <div class="flex items-center gap-2 shrink-0">
-              <span class="text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '‚àí' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>
+              <span class="text-sm" style="${amountColor}">${isCredit ? '+' : isDebit ? '\u2212' : ''}${escapeHtml(formatEuro(tx.bedrag))}</span>
               <button class="px-3 py-1 bg-black hover:bg-gray-800 text-white font-bold rounded-lg text-xs lowercase tx-mail-btn">mail</button>
               <button class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs tx-delete-btn">&times;</button>
             </div>`;
@@ -1011,7 +1011,7 @@
             </div>
             <div class="min-w-0">
               <span class="text-sm font-semibold text-gray-800">${escapeHtml(label)}</span>
-              <div class="text-xs text-gray-400">${escapeHtml(formatDate(tx.datum))}${tx.notitie ? ' ¬∑ ' + escapeHtml(tx.notitie) : ''}</div>
+              <div class="text-xs text-gray-400">${escapeHtml(formatDate(tx.datum))}${tx.notitie ? ' \u00B7 ' + escapeHtml(tx.notitie) : ''}</div>
             </div>
           </div>
           ${right}`;
@@ -1379,8 +1379,8 @@
       const activeItems = (customer?.items || [])
         .filter(i => (parseFloat(i.salePrice) || 0) === 0 && String(i.eol || '').toLowerCase() !== 'yes')
         .map((i, idx) => {
-          const price = i.price ? ` ‚Äì ${formatEuro(i.price)}` : '';
-          const link = i.link ? ` ‚Äì ${i.link}` : '';
+          const price = i.price ? ` \u2013 ${formatEuro(i.price)}` : '';
+          const link = i.link ? ` \u2013 ${i.link}` : '';
           return `${idx + 1}. ${i.product || ''}${price}${link}`;
         })
         .join('\n');
@@ -1644,4 +1644,3 @@
   </script>
 </body>
 </html>
-
