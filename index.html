@@ -613,7 +613,7 @@
 
       const list = document.createElement('div');
       list.className = 'sold-items-list hidden overflow-hidden';
-      soldItems.forEach(item => {
+      soldItems.slice().reverse().forEach(item => {
         const sp = parseFloat(item.salePrice) || 0;
         const row = document.createElement('div');
         row.className = 'py-3 px-4 border-b border-gray-100 last:border-b-0 bg-white text-sm';
@@ -670,7 +670,7 @@
 
       const list = document.createElement('div');
       list.className = 'sold-items-list hidden mt-2 space-y-2';
-      soldItems.forEach(item => {
+      soldItems.slice().reverse().forEach(item => {
         const finalLink = item.link && item.link.trim() !== ''
           ? item.link
           : `https://surf-center.com/en/search?search=${encodeURIComponent(item.product || '')}`;
@@ -912,7 +912,7 @@
         content.style.cssText = 'border-top:1px solid #f3f4f6;';
 
         if (hasSold) {
-          soldItems.forEach(function(item) {
+          soldItems.slice().reverse().forEach(function(item) {
             const sp = parseFloat(item.salePrice) || 0;
             const row = document.createElement('div');
             row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #f9fafb;';
