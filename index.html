@@ -1222,6 +1222,11 @@
       const unsoldItems = productList.filter(i => String(i.status || '').toLowerCase() !== 'green');
       const soldItems   = productList.filter(i => String(i.status || '').toLowerCase() === 'green');
 
+      if (soldItems.length) {
+        const stack = buildSoldStackAdmin(soldItems, customer);
+        if (stack) container.appendChild(stack);
+      }
+
       unsoldItems.forEach(item => {
         const finalLink = item.link && item.link.trim() !== ''
           ? item.link
@@ -1250,11 +1255,6 @@
         card.querySelector('.admin-product-edit-btn').addEventListener('click', () => openProductEditor(item, customer));
         container.appendChild(card);
       });
-
-      if (soldItems.length) {
-        const stack = buildSoldStackAdmin(soldItems, customer);
-        if (stack) container.appendChild(stack);
-      }
     }
 
     // --- TEMPLATES ------------------------------------------------------------
