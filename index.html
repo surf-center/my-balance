@@ -1098,7 +1098,7 @@
       const adminPaidOut   = adminTxList.filter(tx => tx.type === 'uitbetaling_gedaan').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
       const adminPurchased = adminTxList.filter(tx => tx.type === 'aankoop').reduce((s, tx) => s + (parseFloat(tx.bedrag) || 0), 0);
       const adminPendingAmt = selectedCustomer.pendingPayout || 0;
-      const adminFracUsed = (adminNet80 > 0 ? adminPaidOut / adminNet80 : 0) + (adminNet90 > 0 ? adminPurchased / adminNet90 : 0);
+      const adminFracUsed = (adminNet80 > 0 ? (adminPaidOut + adminPendingAmt) / adminNet80 : 0) + (adminNet90 > 0 ? adminPurchased / adminNet90 : 0);
       const adminRemaining = Math.max(0, 1 - adminFracUsed);
       const adminDisp90 = Math.round(adminNet90 * adminRemaining * 100) / 100;
       const adminDisp80 = Math.round(adminNet80 * adminRemaining * 100) / 100;
