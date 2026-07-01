@@ -1085,7 +1085,7 @@
       const bankNaam = selectedCustomer.rekeningnaam || '';
       const bankNr = selectedCustomer.rekeningnummer || '';
       if (bankNaam || bankNr) {
-        bankEl.textContent = [bankNaam, bankNr].filter(Boolean).join(' · ');
+        bankEl.innerHTML = [bankNaam, bankNr].filter(Boolean).map(v => `<span style="display:block">${v}</span>`).join('');
         bankEl.classList.remove('hidden');
       } else {
         bankEl.classList.add('hidden');
