@@ -153,6 +153,7 @@
               </div>
               <p id="adminCustomerEmail" class="text-sm text-gray-500 mt-1 text-left"></p>
               <p id="adminCustomerLoginCode" class="text-sm text-gray-500 mt-1 text-left"></p>
+              <p id="adminCustomerRekeningnummer" class="hidden text-sm text-gray-500 mt-1 text-left"></p>
               <div class="flex flex-wrap gap-3 mt-4">
                 <button onclick="openCustomerDraftModal()" class="px-4 py-2 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition lowercase">mail</button>
                 <button onclick="openCustomerEditor(selectedCustomer)" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">Edit customer</button>
@@ -1164,6 +1165,13 @@
       document.getElementById('adminCustomerLanguageFlag').textContent = languageFlag(selectedCustomer.language);
       document.getElementById('adminCustomerEmail').textContent = `Email: ${selectedCustomer.email || ''}`;
       document.getElementById('adminCustomerLoginCode').textContent = `Login code: ${selectedCustomer.loginCode || ''}`;
+      const adminRekNr = document.getElementById('adminCustomerRekeningnummer');
+      if (selectedCustomer.rekeningnummer) {
+        adminRekNr.textContent = `Rek. nummer: ${selectedCustomer.rekeningnummer}`;
+        adminRekNr.classList.remove('hidden');
+      } else {
+        adminRekNr.classList.add('hidden');
+      }
 
       const adminNet90 = selectedCustomer.saldo90 || 0;
       const adminNet80 = selectedCustomer.saldo80 || 0;
@@ -1698,3 +1706,4 @@
   </script>
 </body>
 </html>
+
